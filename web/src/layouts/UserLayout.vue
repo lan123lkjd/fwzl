@@ -10,6 +10,7 @@
         <nav class="nav-menu">
           <router-link to="/user" class="nav-item">个人中心</router-link>
           <router-link to="/user/orders" class="nav-item">我的预约</router-link>
+          <router-link to="/user/rentals" class="nav-item">我的租赁</router-link>
           <router-link to="/user/collect" class="nav-item">我的收藏</router-link>
         </nav>
         

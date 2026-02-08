@@ -15,6 +15,10 @@
           <el-icon><List /></el-icon>
           <span>预约管理</span>
         </router-link>
+        <router-link to="/landlord/rentals" class="menu-item">
+          <el-icon><Tickets /></el-icon>
+          <span>租赁管理</span>
+        </router-link>
         <div class="menu-item" @click="goHome">
           <el-icon><Back /></el-icon>
           <span>返回首页</span>

@@ -22,6 +22,7 @@ const routes = [
         children: [
             { path: '', name: 'UserCenter', component: () => import('@/views/user/UserCenter.vue') },
             { path: 'orders', name: 'UserOrders', component: () => import('@/views/user/UserOrders.vue') },
+            { path: 'rentals', name: 'UserRentals', component: () => import('@/views/user/UserRentals.vue') },
             { path: 'collect', name: 'UserCollect', component: () => import('@/views/user/UserCollect.vue') },
         ]
     },
@@ -35,6 +36,7 @@ const routes = [
             { path: 'house/add', name: 'AddHouse', component: () => import('@/views/landlord/HouseForm.vue') },
             { path: 'house/edit/:id', name: 'EditHouse', component: () => import('@/views/landlord/HouseForm.vue') },
             { path: 'orders', name: 'LandlordOrders', component: () => import('@/views/landlord/OrderManage.vue') },
+            { path: 'rentals', name: 'LandlordRentals', component: () => import('@/views/landlord/RentalManage.vue') },
         ]
     },
     {
@@ -49,7 +51,7 @@ const routes = [
             { path: 'order', name: 'AdminOrder', component: () => import('@/views/admin/OrderManage.vue') },
             { path: 'news', name: 'AdminNews', component: () => import('@/views/admin/NewsManage.vue') },
             { path: 'notice', name: 'AdminNotice', component: () => import('@/views/admin/NoticeManage.vue') },
-            { path:'comment',name:'AdminComment',component:()=>import("@/views/admin/CommentManage.vue")},
+            { path: 'comment', name: 'AdminComment', component: () => import("@/views/admin/CommentManage.vue") },
         ]
     },
     { path: '/login', name: 'Login', component: () => import('@/views/auth/Login.vue') },

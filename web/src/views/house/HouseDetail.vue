@@ -104,16 +104,70 @@
             </div>
           </div>
         </div>
+        
+        <!-- 立即租赁 -->
+        <div class="card" style="margin-top: 24px">
+          <h3 style="margin-bottom: 16px">立即租赁</h3>
+          <div v-if="hasRented" style="text-align: center; padding: 20px 0">
+            <el-result icon="success" title="您已申请租赁此房源" sub-title="请等待房东确认">
+              <template #extra>
+                <el-button type="primary" @click="$router.push('/user/rentals')">查看我的租赁</el-button>
+              </template>
+            </el-result>
+          </div>
+          <div v-else-if="userStore.isLoggedIn" style="text-align: center; padding: 10px 0">
+            <el-button type="success" size="large" style="width: 100%" @click="showRentalDialog = true">
+              <el-icon><Tickets /></el-icon> 立即租赁
+            </el-button>
+          </div>
+          <div v-else style="text-align: center; color: var(--text-secondary)">
+            <p>请先 <router-link to="/login">登录</router-link> 后租赁</p>
+          </div>
+        </div>
       </el-col>
     </el-row>
+    
+    <!-- 租赁表单弹窗 -->
+    <el-dialog v-model="showRentalDialog" title="申请租赁" width="500px">
+      <el-form :model="rentalForm" label-width="100px">
+        <el-form-item label="月租金">
+          <el-input-number v-model="rentalForm.monthlyRent" :min="0" :precision="2" style="width: 100%" disabled />
+          <span style="margin-left: 8px; color: #999">元/月</span>
+        </el-form-item>
+        <el-form-item label="起租日期">
+          <el-date-picker v-model="rentalForm.startDate" type="date" placeholder="选择起租日期" style="width: 100%" />
+        </el-form-item>
+        <el-form-item label="到期日期">
+          <el-date-picker v-model="rentalForm.endDate" type="date" placeholder="选择到期日期" style="width: 100%" />
+        </el-form-item>
+        <el-form-item label="押金">
+          <el-input-number v-model="rentalForm.deposit" :min="0" :precision="2" style="width: 100%" />
+          <span style="margin-left: 8px; color: #999">元</span>
+        </el-form-item>
+        <el-form-item label="联系姓名">
+          <el-input v-model="rentalForm.contactName" placeholder="您的姓名" />
+        </el-form-item>
+        <el-form-item label="联系电话">
+          <el-input v-model="rentalForm.contactPhone" placeholder="您的电话" />
+        </el-form-item>
+        <el-form-item label="备注">
+          <el-input v-model="rentalForm.remark" type="textarea" :rows="2" placeholder="备注信息" />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="showRentalDialog = false">取消</el-button>
+        <el-button type="primary" @click="submitRental">提交申请</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, computed } from 'vue'
+import { ref, reactive, onMounted, computed, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { houseApi } from '@/api/house'
 import { orderApi } from '@/api/order'
+import { rentalApi } from '@/api/rental'
 import { evaluationsApi } from '@/api/evaluations'
 import { useUserStore } from '@/store/user'
 import { ElMessage } from 'element-plus'
@@ -126,7 +180,10 @@ const comments = ref([])
 const commentContent = ref('')
 const isCollected = ref(false)
 const hasBooked = ref(false)
+const hasRented = ref(false)
+const showRentalDialog = ref(false)
 const orderForm = reactive({ orderTime: '', contactName: '', contactPhone: '', remark: '' })
+const rentalForm = reactive({ monthlyRent: 0, startDate: '', endDate: '', deposit: 0, contactName: '', contactPhone: '', remark: '' })
 
 const images = computed(() => {
   if (!house.value?.images) return house.value?.coverImage ? [house.value.coverImage] : []
@@ -204,7 +261,57 @@ onMounted(() => {
   loadDetail()
   loadComments()
   checkBookingStatus()
+  checkRentalStatus()
 })
+
+// 监听房源数据加载，填充租赁表单的月租金
+watch(() => house.value, (newHouse) => {
+  if (newHouse) {
+    rentalForm.monthlyRent = newHouse.price || 0
+    rentalForm.deposit = newHouse.price || 0
+  }
+})
+
+// 检查是否已租赁
+const checkRentalStatus = async () => {
+  if (!userStore.isLoggedIn) return
+  try {
+    const res = await rentalApi.userList({ page: 1, size: 100 })
+    if (res.code === 200) {
+      const rentals = res.data.records || []
+      hasRented.value = rentals.some(r => r.houseId == route.params.id && (r.status === 0 || r.status === 1))
+    }
+  } catch (e) {
+    console.log('检查租赁状态失败', e)
+  }
+}
+
+// 提交租赁申请
+const submitRental = async () => {
+  if (!rentalForm.startDate || !rentalForm.endDate) {
+    ElMessage.warning('请选择租赁日期')
+    return
+  }
+  if (!rentalForm.contactName || !rentalForm.contactPhone) {
+    ElMessage.warning('请填写联系信息')
+    return
+  }
+  
+  const data = {
+    houseId: route.params.id,
+    landlordId: house.value.landlordId,
+    ...rentalForm
+  }
+  
+  const res = await rentalApi.create(data)
+  if (res.code === 200) {
+    ElMessage.success('租赁申请已提交！')
+    hasRented.value = true
+    showRentalDialog.value = false
+  } else {
+    ElMessage.error(res.message || '提交失败')
+  }
+}
 </script>
 
 <style scoped lang="scss">

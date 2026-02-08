@@ -26,4 +26,9 @@ public class PageResult<T> implements Serializable {
         this.size = size;
         this.records = records;
     }
+
+    public PageResult(List<T> records, Long total) {
+        this.records = records;
+        this.total = total;
+    }
 }

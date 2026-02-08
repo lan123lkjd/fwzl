@@ -36,7 +36,8 @@ public class WebConfig implements WebMvcConfigurer {
                         "/api/area/**",
                         "/api/community/**",
                         "/api/evaluations/list/**",
-                        "/api/upload/**");
+                        "/api/upload/**",
+                        "/api/ai/**");
     }
 
     @Override

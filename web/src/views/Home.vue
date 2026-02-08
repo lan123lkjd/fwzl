@@ -15,6 +15,23 @@
       </div>
     </section>
     
+    <!-- 智能助手浮动气泡 - 仅登录用户可见 -->
+    <div v-if="userStore.isLoggedIn" class="ai-bubble" @click="openChatDialog">
+      <div class="bubble-icon">💬</div>
+      <div class="bubble-pulse"></div>
+    </div>
+    
+    <!-- 智能助手对话弹窗 -->
+    <el-dialog
+      v-model="chatDialogVisible"
+      title="智能租房助手"
+      width="800px"
+      :close-on-click-modal="false"
+      class="chat-dialog"
+    >
+      <ChatRoom :session-id="sessionId" @new-session="generateNewSession" />
+    </el-dialog>
+    
     <section class="container section">
       <div class="section-header">
         <h2>智能推荐</h2>
@@ -103,13 +120,28 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { houseApi } from '@/api/house'
 import { newsApi, commonApi } from '@/api/common'
+import { useUserStore } from '@/store/user'
+import ChatRoom from '@/components/ChatRoom.vue'
 
 const router = useRouter()
+const userStore = useUserStore()
 const keyword = ref('')
 const recommendList = ref([])
 const hotList = ref([])
 const newsList = ref([])
 const noticeList = ref([])
+
+// AI 对话相关
+const chatDialogVisible = ref(false)
+const sessionId = ref(Date.now())
+
+const generateNewSession = () => {
+  sessionId.value = Date.now()
+}
+
+const openChatDialog = () => {
+  chatDialogVisible.value = true
+}
 
 const loadData = async () => {
   const [recommend, hot, news, notice] = await Promise.all([
@@ -240,5 +272,82 @@ onMounted(loadData)
   background: #fff;
   border-radius: var(--radius);
   cursor: pointer;
+}
+
+/* 智能助手浮动气泡样式 */
+.ai-bubble {
+  position: fixed;
+  right: 30px;
+  bottom: 100px;
+  width: 56px;
+  height: 56px;
+  background: #1890ff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(24, 144, 255, 0.4);
+  z-index: 999;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    transform: scale(1.08);
+    box-shadow: 0 6px 20px rgba(24, 144, 255, 0.5);
+  }
+  
+  .bubble-icon {
+    font-size: 24px;
+    z-index: 2;
+  }
+  
+  .bubble-pulse {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: #1890ff;
+    animation: pulse 2s infinite;
+    z-index: 1;
+  }
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+  70% {
+    transform: scale(1.4);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0;
+  }
+}
+
+/* 对话框样式调整 */
+:deep(.chat-dialog) {
+  .el-dialog__header {
+    background: #1890ff;
+    color: #fff;
+    padding: 14px 20px;
+    margin: 0;
+    
+    .el-dialog__title {
+      color: #fff;
+      font-weight: 500;
+    }
+    
+    .el-dialog__headerbtn .el-dialog__close {
+      color: #fff;
+    }
+  }
+  
+  .el-dialog__body {
+    padding: 0;
+    height: 70vh;
+  }
 }
 </style>
