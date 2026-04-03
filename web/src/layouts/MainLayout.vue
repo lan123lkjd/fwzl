@@ -4,11 +4,11 @@
       <div class="container header-content">
         <router-link to="/" class="logo">
           <el-icon><House /></el-icon>
-          <span>房屋租赁系统</span>
+          <span>南宁市智慧化房屋租赁平台</span>
         </router-link>
         
         <nav class="nav-menu">
-          <router-link to="/" class="nav-item">首页</router-link>
+          <router-link to="/" class="nav-item" exact>首页</router-link>
           <router-link to="/house" class="nav-item">找房源</router-link>
           <router-link to="/news" class="nav-item">房屋资讯</router-link>
           <router-link to="/notice" class="nav-item">公告</router-link>
@@ -45,7 +45,7 @@
     
     <footer class="footer">
       <div class="container">
-        <p>© 2024 房屋租赁系统 - 找房租房一站式服务平台</p>
+        <p>© 2026 智慧房屋租赁平台- 找房租房一站式服务平台</p>
       </div>
     </footer>
   </div>
@@ -105,22 +105,28 @@ const handleLogout = () => {
   }
   
   .nav-menu {
-    display: flex;
-    gap: 32px;
+  display: flex;
+  gap: 32px;
+  
+  .nav-item {
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 15px;
+    padding: 8px 0;
+    border-bottom: 2px solid transparent;
+    transition: all 0.3s;
     
-    .nav-item {
-      color: rgba(255, 255, 255, 0.85);
-      font-size: 15px;
-      padding: 8px 0;
-      border-bottom: 2px solid transparent;
-      transition: all 0.3s;
-      
-      &:hover, &.router-link-active {
-        color: #fff;
-        border-bottom-color: #fff;
-      }
+    &:hover {
+      color: #fff;
+      border-bottom-color: #fff;
+    }
+    
+    // 只使用精确匹配的类名
+    &.router-link-exact-active {
+      color: #fff;
+      border-bottom-color: #fff;
     }
   }
+}
   
   .user-actions {
     display: flex;

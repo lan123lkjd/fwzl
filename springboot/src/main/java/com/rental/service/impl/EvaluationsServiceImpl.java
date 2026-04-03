@@ -98,6 +98,14 @@ public class EvaluationsServiceImpl extends ServiceImpl<EvaluationsMapper, Evalu
     }
 
     @Override
+    public boolean hasUpvoted(Long evaluationId, Long userId) {
+        Long count = upvoteMapper.selectCount(new LambdaQueryWrapper<EvaluationsUpvote>()
+                .eq(EvaluationsUpvote::getEvaluationId, evaluationId)
+                .eq(EvaluationsUpvote::getUserId, userId));
+        return count > 0;
+    }
+
+    @Override
     public boolean deleteByUser(Long id, Long userId) {
         Evaluations evaluations = getById(id);
         if (evaluations == null || !evaluations.getUserId().equals(userId)) {

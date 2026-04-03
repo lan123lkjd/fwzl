@@ -4,8 +4,8 @@
     <div ref="messagesContainer" class="messages-container">
       <div v-if="messages.length === 0" class="empty-state">
         <div class="empty-icon">🏠</div>
-        <h3>智能租房助手</h3>
-        <p>描述您的租房需求，我来帮您找到合适的房源</p>
+        <h3>开始与 AI 对话</h3>
+        <p>我是你的 AI 房屋租赁助手，可以帮你搜索房源、推荐合适的房子</p>
         <div class="quick-questions">
           <button 
             v-for="question in quickQuestions" 
@@ -21,11 +21,11 @@
       <div 
         v-for="(message, index) in messages" 
         :key="index" 
-        :class="['message', message.type]"
+        class="message"
       >
-        <!-- 助手消息 -->
-        <div v-if="message.type === 'ai'" class="message-content assistant">
-          <div class="avatar assistant-avatar">🏠</div>
+        <!-- AI 消息 -->
+        <div v-if="message.type === 'ai'" class="message-content ai">
+          <div class="avatar">🤖</div>
           <div class="bubble">
             <div class="message-text" v-html="formatMessage(message.text)"></div>
             <div class="message-meta">
@@ -34,26 +34,26 @@
           </div>
         </div>
         
-        <!-- 用户消息 - 头像在右边 -->
+        <!-- 用户消息 (已修复结构) -->
         <div v-else class="message-content user">
-          <div class="avatar user-avatar">我</div>
           <div class="bubble">
             <div class="message-text">{{ message.text }}</div>
             <div class="message-meta">
               <span class="time">{{ formatTime(message.timestamp) }}</span>
             </div>
           </div>
+          <div class="avatar">👤</div>
         </div>
       </div>
       
-      <!-- 助手思考中 -->
-      <div v-if="isLoading" class="message assistant">
-        <div class="message-content assistant">
-          <div class="avatar assistant-avatar">🏠</div>
+      <!-- AI 思考中 -->
+      <div v-if="isLoading" class="message">
+        <div class="message-content ai">
+          <div class="avatar">🤖</div>
           <div class="bubble">
             <div class="thinking">
               <div class="dot-flashing"></div>
-              <span>正在查询中...</span>
+              <span>AI 正在思考中...</span>
             </div>
           </div>
         </div>
@@ -62,51 +62,63 @@
     
     <!-- 输入区域 -->
     <div class="input-area">
-      <form @submit.prevent="sendMessage" class="input-form">
-        <div class="input-wrapper">
-          <textarea
-            v-model="userInput"
-            @keydown.enter.exact.prevent="sendMessage"
-            @keydown.enter.shift.exact.prevent="userInput += '\n'"
-            placeholder="描述你的租房需求，如：朝阳区两居室，预算8000以内..."
-            :disabled="isLoading"
-            rows="1"
-            ref="textareaRef"
-            class="message-input"
-          ></textarea>
-          <button 
-            type="submit" 
-            :disabled="!userInput.trim() || isLoading" 
-            class="send-btn"
-          >
-            <svg class="send-icon" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
-            </svg>
-          </button>
-        </div>
-        
-        <div class="input-footer">
-          <span class="hint">
-            按 Enter 发送，Shift + Enter 换行
-          </span>
-          <div class="actions">
-            <button 
-              type="button" 
-              @click="clearMessages" 
-              class="action-btn"
-              :disabled="messages.length === 0"
-            >
-              清空对话
-            </button>
+      <div class="input-container">
+        <form @submit.prevent="sendMessage" class="input-form">
+          <div class="input-wrapper">
+            <textarea
+              v-model="userInput"
+              @keydown.enter.exact.prevent="sendMessage"
+              @keydown.enter.shift.exact.prevent="userInput += '\n'"
+              placeholder="输入你的租房需求，如：朝阳区两居室，预算8000以内..."
+              :disabled="isLoading"
+              rows="1"
+              ref="textareaRef"
+              class="message-input"
+              :style="{ height: textareaHeight }"
+            ></textarea>
+            
+            <div class="input-actions">
+              <button 
+                type="button"
+                class="action-icon-btn"
+                title="清空对话"
+                @click="clearMessages"
+                :disabled="messages.length === 0"
+              >
+                <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+                </svg>
+              </button>
+              
+              <button 
+                type="submit" 
+                :disabled="!userInput.trim() || isLoading" 
+                class="send-btn"
+              >
+                <svg class="send-icon" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+                </svg>
+              </button>
+            </div>
           </div>
-        </div>
-      </form>
+          
+          <div class="input-footer">
+            <span class="hint">
+              <span class="hint-icon">⌨️</span>
+              Enter 发送，Shift + Enter 换行
+            </span>
+            <span class="char-count" v-if="userInput.length > 0">
+              {{ userInput.length }} / 2000
+            </span>
+          </div>
+        </form>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
-import { ref, computed, watch, nextTick, onMounted } from 'vue'
+import { ref, computed, watch, nextTick, onMounted, onUnmounted } from 'vue'
 import dayjs from 'dayjs'
 import 'dayjs/locale/zh-cn'
 
@@ -128,6 +140,7 @@ export default {
     const isLoading = ref(false)
     const textareaRef = ref(null)
     const messagesContainer = ref(null)
+    const textareaHeight = ref('auto')
     let eventSource = null
 
     // 快捷问题
@@ -143,8 +156,29 @@ export default {
     const adjustTextareaHeight = () => {
       if (textareaRef.value) {
         textareaRef.value.style.height = 'auto'
-        textareaRef.value.style.height = `${textareaRef.value.scrollHeight}px`
+        const scrollHeight = textareaRef.value.scrollHeight
+        const newHeight = Math.min(scrollHeight, 120)
+        textareaHeight.value = `${newHeight}px`
       }
+    }
+
+    // 滚动到底部
+    const scrollToBottom = () => {
+      nextTick(() => {
+        if (messagesContainer.value) {
+          messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
+        }
+      })
+    }
+
+    // 添加消息
+    const addMessage = (text, type) => {
+      messages.value.push({
+        text,
+        type,
+        timestamp: new Date()
+      })
+      scrollToBottom()
     }
 
     // 发送消息
@@ -174,27 +208,28 @@ export default {
         const url = `http://localhost:8080/api/ai/chat?memoryId=${props.sessionId}&message=${encodeURIComponent(message)}`
         eventSource = new EventSource(url)
         
+        let isEnded = false
+        
         eventSource.onmessage = (event) => {
           const chunk = event.data
-          // 更新最后一条 AI 消息
           messages.value[aiMessageIndex].text += chunk
           scrollToBottom()
         }
         
-        eventSource.onerror = (error) => {
-          console.error('SSE 错误:', error)
+        eventSource.onerror = () => {
+          if (isEnded) return
           if (eventSource) {
             eventSource.close()
           }
           isLoading.value = false
           
-          // 如果 AI 消息为空，设置为错误信息
           if (!messages.value[aiMessageIndex].text) {
             messages.value[aiMessageIndex].text = '抱歉，连接出现错误，请重试。'
           }
         }
         
         eventSource.addEventListener('end', () => {
+          isEnded = true
           if (eventSource) {
             eventSource.close()
           }
@@ -206,16 +241,6 @@ export default {
         isLoading.value = false
         addMessage('抱歉，发送消息时出现错误，请重试。', 'ai')
       }
-    }
-
-    // 添加消息
-    const addMessage = (text, type) => {
-      messages.value.push({
-        text,
-        type,
-        timestamp: new Date()
-      })
-      scrollToBottom()
     }
 
     // 发送快捷问题
@@ -233,6 +258,7 @@ export default {
           eventSource = null
         }
         isLoading.value = false
+        scrollToBottom()
       }
     }
 
@@ -240,15 +266,6 @@ export default {
     const startNewSession = () => {
       clearMessages()
       emit('new-session')
-    }
-
-    // 滚动到底部
-    const scrollToBottom = () => {
-      nextTick(() => {
-        if (messagesContainer.value) {
-          messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
-        }
-      })
     }
 
     // 格式化消息（支持简单 Markdown）
@@ -268,6 +285,11 @@ export default {
 
     // 监听文本变化调整高度
     watch(userInput, adjustTextareaHeight)
+    
+    // 监听消息变化，自动滚动到底部
+    watch(messages, () => {
+      scrollToBottom()
+    }, { deep: true })
 
     // 监听会话 ID 变化，清空消息
     watch(() => props.sessionId, () => {
@@ -276,10 +298,18 @@ export default {
         eventSource.close()
         eventSource = null
       }
+      scrollToBottom()
     })
 
     onMounted(() => {
       adjustTextareaHeight()
+      scrollToBottom()
+    })
+
+    onUnmounted(() => {
+      if (eventSource) {
+        eventSource.close()
+      }
     })
 
     return {
@@ -288,6 +318,7 @@ export default {
       isLoading,
       textareaRef,
       messagesContainer,
+      textareaHeight,
       quickQuestions,
       sendMessage,
       sendQuickQuestion,
@@ -306,9 +337,9 @@ export default {
   display: flex;
   flex-direction: column;
   background: white;
-  border-radius: 20px;
+  border-radius: 24px;
   overflow: hidden;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
 }
 
 .messages-container {
@@ -316,59 +347,107 @@ export default {
   overflow-y: auto;
   padding: 2rem;
   background: #f8fafc;
+  scroll-behavior: smooth;
+  
+  /* 隐藏滚动条但保持滚动功能 */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE 和 Edge */
+}
+
+.messages-container::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
 }
 
 .empty-state {
   text-align: center;
   padding: 4rem 2rem;
   color: #64748b;
+  animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .empty-icon {
   font-size: 4rem;
   margin-bottom: 1rem;
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
 }
 
 .empty-state h3 {
   margin: 1rem 0;
   color: #334155;
   font-size: 1.5rem;
+  font-weight: 600;
 }
 
 .empty-state p {
   margin-bottom: 2rem;
   line-height: 1.6;
+  color: #475569;
 }
 
 .quick-questions {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 0.5rem;
+  gap: 0.75rem;
   max-width: 600px;
   margin: 0 auto;
 }
 
 .quick-btn {
-  background: #f0f5ff;
-  color: #1890ff;
-  border: 1px solid #d6e4ff;
-  padding: 0.5rem 1rem;
-  border-radius: 16px;
+  background: white;
+  color: #4f46e5;
+  border: 1px solid #e0e7ff;
+  padding: 0.6rem 1.2rem;
+  border-radius: 30px;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
   font-size: 0.9rem;
-  white-space: nowrap;
+  font-weight: 500;
+  box-shadow: 0 2px 8px rgba(79, 70, 229, 0.05);
 }
 
 .quick-btn:hover {
-  background: #e6f7ff;
-  border-color: #91d5ff;
+  background: #4f46e5;
+  color: white;
+  border-color: #4f46e5;
   transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(79, 70, 229, 0.2);
 }
 
 .message {
   margin-bottom: 1.5rem;
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .message-content {
@@ -378,58 +457,64 @@ export default {
   max-width: 80%;
 }
 
-.message-content.assistant {
+.message-content.ai {
   margin-right: auto;
 }
 
 .message-content.user {
   margin-left: auto;
-  flex-direction: row-reverse;
+  justify-content: flex-end;
 }
 
 .avatar {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  border-radius: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1rem;
+  font-size: 1.5rem;
   flex-shrink: 0;
 }
 
-.assistant-avatar {
-  background: #f0f5ff;
-  color: #1890ff;
-  font-size: 1.2rem;
+/* AI 头像样式 - 紫色 */
+.message-content.ai .avatar {
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  color: white;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
 }
 
-.user-avatar {
-  background: #1890ff;
+/* 用户头像样式 - 蓝色 */
+.message-content.user .avatar {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
   color: white;
-  font-size: 0.85rem;
-  font-weight: 500;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
 }
 
 .bubble {
-  background: white;
   padding: 1rem 1.25rem;
-  border-radius: 18px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border-radius: 20px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
   position: relative;
   max-width: 100%;
   word-wrap: break-word;
 }
 
-.message-content.assistant .bubble {
+/* AI 气泡样式 - 白色 */
+.message-content.ai .bubble {
+  background: white;
+  color: #1e293b;
   border-bottom-left-radius: 4px;
-  background: #f5f7fa;
+  border-bottom-right-radius: 20px;
 }
 
+/* 用户气泡样式 - 蓝色 */
 .message-content.user .bubble {
-  border-bottom-right-radius: 4px;
-  background: #1890ff;
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
   color: white;
+  border-bottom-left-radius: 20px;
+  border-bottom-right-radius: 4px;
+  box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
 }
 
 .message-text {
@@ -438,9 +523,9 @@ export default {
 }
 
 .message-text :deep(code) {
-  background: rgba(0, 0, 0, 0.1);
+  background: rgba(0, 0, 0, 0.08);
   padding: 0.2rem 0.4rem;
-  border-radius: 4px;
+  border-radius: 6px;
   font-family: 'Courier New', monospace;
   font-size: 0.9em;
 }
@@ -451,8 +536,8 @@ export default {
 
 .message-meta {
   margin-top: 0.5rem;
-  font-size: 0.75rem;
-  opacity: 0.7;
+  font-size: 0.7rem;
+  opacity: 0.6;
   display: flex;
   justify-content: flex-end;
 }
@@ -461,7 +546,7 @@ export default {
   display: flex;
   align-items: center;
   gap: 1rem;
-  color: #64748b;
+  color: #475569;
 }
 
 .dot-flashing {
@@ -469,8 +554,7 @@ export default {
   width: 8px;
   height: 8px;
   border-radius: 4px;
-  background-color: #1890ff;
-  color: #1890ff;
+  background-color: #6366f1;
   animation: dotFlashing 1s infinite linear alternate;
   animation-delay: 0.5s;
 }
@@ -481,109 +565,180 @@ export default {
   display: inline-block;
   position: absolute;
   top: 0;
+  width: 8px;
+  height: 8px;
+  border-radius: 4px;
+  background-color: #6366f1;
 }
 
 .dot-flashing::before {
   left: -12px;
-  width: 8px;
-  height: 8px;
-  border-radius: 4px;
-  background-color: #1890ff;
-  color: #1890ff;
   animation: dotFlashing 1s infinite alternate;
   animation-delay: 0s;
 }
 
 .dot-flashing::after {
   left: 12px;
-  width: 8px;
-  height: 8px;
-  border-radius: 4px;
-  background-color: #1890ff;
-  color: #1890ff;
   animation: dotFlashing 1s infinite alternate;
   animation-delay: 1s;
 }
 
 @keyframes dotFlashing {
   0% {
-    background-color: #1890ff;
+    background-color: #6366f1;
+    opacity: 1;
   }
-  50%,
-  100% {
-    background-color: rgba(24, 144, 255, 0.2);
+  50%, 100% {
+    background-color: #6366f1;
+    opacity: 0.3;
   }
 }
 
+/* 输入区域样式 */
 .input-area {
   background: white;
-  border-top: 1px solid #e2e8f0;
-  padding: 1rem;
+  padding: 1.5rem 2rem 2rem;
+  border-top: 1px solid rgba(226, 232, 240, 0.6);
+}
+
+.input-container {
+  max-width: 800px;
+  margin: 0 auto;
 }
 
 .input-form {
-  max-width: 800px;
-  margin: 0 auto;
+  width: 100%;
 }
 
 .input-wrapper {
   display: flex;
   gap: 0.75rem;
   align-items: flex-end;
+  background: #f8fafc;
+  border-radius: 24px;
+  padding: 0.5rem 0.5rem 0.5rem 1.25rem;
+  border: 2px solid transparent;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+}
+
+.input-wrapper:focus-within {
+  border-color: #6366f1;
+  background: white;
+  box-shadow: 0 8px 24px rgba(99, 102, 241, 0.12);
 }
 
 .message-input {
   flex: 1;
-  border: 2px solid #e2e8f0;
-  border-radius: 12px;
-  padding: 0.75rem 1rem;
+  background: transparent;
+  border: none;
+  padding: 0.75rem 0;
   font-size: 1rem;
   resize: none;
   max-height: 120px;
-  transition: all 0.3s ease;
+  min-height: 48px;
   font-family: inherit;
+  color: #1e293b;
+  line-height: 1.5;
+  overflow-y: hidden;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.message-input::placeholder {
+  color: #94a3b8;
+  font-size: 0.95rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  display: block;
 }
 
 .message-input:focus {
   outline: none;
-  border-color: #6366f1;
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.message-input:focus::placeholder {
+  opacity: 0.7;
 }
 
 .message-input:disabled {
-  background-color: #f8fafc;
+  opacity: 0.7;
   cursor: not-allowed;
 }
 
-.send-btn {
-  width: 44px;
-  height: 44px;
-  background: #1890ff;
+.input-actions {
+  display: flex;
+  gap: 0.25rem;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.action-icon-btn {
+  width: 40px;
+  height: 40px;
   border: none;
-  border-radius: 50%;
-  color: white;
+  background: transparent;
+  border-radius: 40px;
+  color: #64748b;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
 }
 
+.action-icon-btn:hover:not(:disabled) {
+  background: rgba(100, 116, 139, 0.1);
+  color: #475569;
+}
+
+.action-icon-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.action-icon-btn .icon {
+  width: 20px;
+  height: 20px;
+}
+
+.send-btn {
+  width: 44px;
+  height: 44px;
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  border: none;
+  border-radius: 44px;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
+
 .send-btn:hover:not(:disabled) {
-  background: #40a9ff;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(24, 144, 255, 0.4);
+  transform: scale(1.05);
+  box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4);
+}
+
+.send-btn:active:not(:disabled) {
+  transform: scale(0.95);
 }
 
 .send-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+  box-shadow: none;
 }
 
 .send-icon {
-  width: 24px;
-  height: 24px;
+  width: 20px;
+  height: 20px;
 }
 
 .input-footer {
@@ -591,41 +746,33 @@ export default {
   justify-content: space-between;
   align-items: center;
   margin-top: 0.75rem;
+  padding: 0 0.5rem;
 }
 
 .hint {
   font-size: 0.8rem;
   color: #64748b;
-}
-
-.actions {
   display: flex;
-  gap: 0.5rem;
+  align-items: center;
+  gap: 0.35rem;
 }
 
-.action-btn {
-  background: none;
-  border: 1px solid #e2e8f0;
-  padding: 0.4rem 0.8rem;
-  border-radius: 6px;
-  color: #64748b;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  font-size: 0.85rem;
+.hint-icon {
+  font-size: 1rem;
 }
 
-.action-btn:hover:not(:disabled) {
-  background-color: #f1f5f9;
-}
-
-.action-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+.char-count {
+  font-size: 0.8rem;
+  color: #94a3b8;
+  background: #f1f5f9;
+  padding: 0.2rem 0.6rem;
+  border-radius: 12px;
 }
 
 @media (max-width: 768px) {
   .chat-room {
-    height: calc(100vh - 200px);
+    height: calc(100vh - 180px);
+    border-radius: 20px;
   }
   
   .messages-container {
@@ -637,9 +784,32 @@ export default {
   }
   
   .avatar {
-    width: 32px;
-    height: 32px;
+    width: 36px;
+    height: 36px;
     font-size: 1.2rem;
+  }
+  
+  .input-area {
+    padding: 1rem;
+  }
+  
+  .input-wrapper {
+    padding: 0.25rem 0.25rem 0.25rem 1rem;
+  }
+  
+  .message-input {
+    min-height: 44px;
+    font-size: 0.95rem;
+  }
+  
+  .send-btn {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .action-icon-btn {
+    width: 36px;
+    height: 36px;
   }
 }
 </style>

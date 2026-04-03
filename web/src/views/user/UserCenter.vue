@@ -43,10 +43,42 @@
     
     <el-card style="margin-top: 20px" v-if="!userStore.isLandlord">
       <h3 style="margin-bottom: 16px">申请成为房东</h3>
-      <el-form :model="landlordForm" label-width="100px">
+      <el-form :model="landlordForm" label-width="120px">
         <el-form-item label="真实姓名"><el-input v-model="landlordForm.realName" /></el-form-item>
         <el-form-item label="身份证号"><el-input v-model="landlordForm.idCard" /></el-form-item>
         <el-form-item label="联系方式"><el-input v-model="landlordForm.contact" /></el-form-item>
+        <el-form-item label="身份证人像面" required>
+          <el-upload
+            class="id-card-uploader"
+            action="/api/upload"
+            :show-file-list="false"
+            :on-success="(res) => handleIdCardSuccess(res, 'front')"
+            :before-upload="beforeIdCardUpload"
+            :headers="{ Authorization: 'Bearer ' + userStore.token }"
+          >
+            <el-image v-if="landlordForm.idCardFront" :src="landlordForm.idCardFront" fit="contain" class="id-card-image" />
+            <div v-else class="id-card-placeholder">
+              <el-icon :size="32"><Plus /></el-icon>
+              <div>上传人像面</div>
+            </div>
+          </el-upload>
+        </el-form-item>
+        <el-form-item label="身份证国徽面" required>
+          <el-upload
+            class="id-card-uploader"
+            action="/api/upload"
+            :show-file-list="false"
+            :on-success="(res) => handleIdCardSuccess(res, 'back')"
+            :before-upload="beforeIdCardUpload"
+            :headers="{ Authorization: 'Bearer ' + userStore.token }"
+          >
+            <el-image v-if="landlordForm.idCardBack" :src="landlordForm.idCardBack" fit="contain" class="id-card-image" />
+            <div v-else class="id-card-placeholder">
+              <el-icon :size="32"><Plus /></el-icon>
+              <div>上传国徽面</div>
+            </div>
+          </el-upload>
+        </el-form-item>
         <el-form-item><el-button type="success" @click="handleApply">提交申请</el-button></el-form-item>
       </el-form>
     </el-card>
@@ -62,7 +94,7 @@ import { ElMessage } from 'element-plus'
 const userStore = useUserStore()
 const form = reactive({ username: '', nickname: '', phone: '', email: '', avatar: '' })
 const pwdForm = reactive({ oldPassword: '', newPassword: '' })
-const landlordForm = reactive({ realName: '', idCard: '', contact: '' })
+const landlordForm = reactive({ realName: '', idCard: '', contact: '', idCardFront: '', idCardBack: '' })
 
 onMounted(() => { if (userStore.user) Object.assign(form, userStore.user) })
 
@@ -94,9 +126,38 @@ const handleChangePwd = async () => {
 }
 
 const handleApply = async () => {
+  if (!landlordForm.idCardFront) {
+    ElMessage.error('请上传身份证人像面')
+    return
+  }
+  if (!landlordForm.idCardBack) {
+    ElMessage.error('请上传身份证国徽面')
+    return
+  }
   const res = await landlordApi.apply(landlordForm)
   if (res.code === 200) ElMessage.success('申请已提交，等待审核')
   else ElMessage.error(res.message)
+}
+
+const handleIdCardSuccess = (response, type) => {
+  if (response.code === 200) {
+    if (type === 'front') {
+      landlordForm.idCardFront = response.data
+    } else {
+      landlordForm.idCardBack = response.data
+    }
+    ElMessage.success('上传成功')
+  } else {
+    ElMessage.error(response.message || '上传失败')
+  }
+}
+
+const beforeIdCardUpload = (file) => {
+  const isImage = file.type.startsWith('image/')
+  const isLt5M = file.size / 1024 / 1024 < 5
+  if (!isImage) ElMessage.error('只能上传图片文件!')
+  if (!isLt5M) ElMessage.error('图片大小不能超过5MB!')
+  return isImage && isLt5M
 }
 </script>
 
@@ -110,5 +171,36 @@ const handleApply = async () => {
 }
 .avatar-uploader :deep(.el-upload:hover) {
   border-color: var(--el-color-primary);
+}
+
+.id-card-uploader :deep(.el-upload) {
+  border: 1px dashed var(--el-border-color);
+  border-radius: 6px;
+  cursor: pointer;
+  overflow: hidden;
+  transition: all 0.3s;
+}
+.id-card-uploader :deep(.el-upload:hover) {
+  border-color: var(--el-color-primary);
+}
+
+.id-card-image {
+  width: 280px;
+  height: 175px;
+}
+
+.id-card-placeholder {
+  width: 280px;
+  height: 175px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--el-fill-color-light);
+  color: var(--el-text-color-secondary);
+  font-size: 14px;
+}
+.id-card-placeholder .el-icon {
+  margin-bottom: 8px;
 }
 </style>

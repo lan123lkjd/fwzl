@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="dashboard">
     <h2>数据概览</h2>
     
     <div class="stat-cards">
@@ -19,9 +19,6 @@
         <div class="label">新增用户</div>
         <div class="value">{{ todayStats.newUsers || 0 }}</div>
       </div>
-    </div>
-    
-    <div class="stat-cards">
       <div class="stat-card">
         <div class="label">总用户数</div>
         <div class="value">{{ totalStats.totalUsers || 0 }}</div>
@@ -36,7 +33,7 @@
       </div>
     </div>
     
-    <el-row :gutter="24">
+    <el-row :gutter="16">
       <el-col :span="12">
         <div class="chart-container">
           <div class="chart-title">近7日访问趋势</div>
@@ -51,7 +48,7 @@
       </el-col>
     </el-row>
     
-    <el-row :gutter="24">
+    <el-row :gutter="16">
       <el-col :span="12">
         <div class="chart-container">
           <div class="chart-title">房源浏览排行</div>
@@ -173,3 +170,41 @@ onUnmounted(() => {
   userChart?.dispose()
 })
 </script>
+
+<style scoped>
+.dashboard h2 {
+  font-size: 18px;
+  margin-bottom: 16px;
+}
+
+.dashboard .stat-cards {
+  margin-bottom: 16px;
+}
+
+.dashboard .stat-card {
+  padding: 16px;
+}
+
+.dashboard .stat-card .label {
+  font-size: 13px;
+  margin-bottom: 4px;
+}
+
+.dashboard .stat-card .value {
+  font-size: 22px;
+}
+
+.dashboard .chart-container {
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.dashboard .chart-title {
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.dashboard .chart {
+  height: 220px;
+}
+</style>

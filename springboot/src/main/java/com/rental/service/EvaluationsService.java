@@ -37,6 +37,11 @@ public interface EvaluationsService extends IService<Evaluations> {
     boolean cancelUpvote(Long evaluationId, Long userId);
 
     /**
+     * 检查是否已点赞
+     */
+    boolean hasUpvoted(Long evaluationId, Long userId);
+
+    /**
      * 删除评论
      */
     boolean deleteByUser(Long id, Long userId);

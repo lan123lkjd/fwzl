@@ -57,4 +57,9 @@ public interface HouseService extends IService<House> {
      * 热门房源
      */
     List<House> hotList(Integer limit);
+
+    /**
+     * 获取用户收藏列表
+     */
+    PageResult<House> getCollectList(Long userId, Integer page, Integer size);
 }

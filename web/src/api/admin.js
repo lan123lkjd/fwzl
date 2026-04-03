@@ -5,6 +5,7 @@ export const adminApi = {
     userList: (params) => request.get('/admin/user/list', { params }),
     updateUserStatus: (id, status) => request.put(`/admin/user/status/${id}`, null, { params: { status } }),
     deleteUser: (id) => request.delete(`/admin/user/${id}`),
+    updateUser: (id, data) => request.put(`/admin/user/${id}`, data),
 
     // 房源管理
     houseList: (status) => request.get('/admin/house/list', { params: { status } }),

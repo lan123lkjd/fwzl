@@ -47,7 +47,7 @@
             </div>
             <div class="comment-content">{{ comment.content }}</div>
             <div class="comment-actions">
-              <el-button text size="small" @click="handleUpvote(comment)">
+              <el-button text size="small" :type="comment.isUpvoted ? 'warning' : 'default'" @click="handleUpvote(comment)">
                 <el-icon><Star /></el-icon> {{ comment.upvoteCount }}
               </el-button>
             </div>
@@ -195,9 +195,29 @@ const loadDetail = async () => {
   if (res.code === 200) house.value = res.data
 }
 
+const checkCollectStatus = async () => {
+  if (!userStore.isLoggedIn) return
+  try {
+    const res = await houseApi.checkCollect(route.params.id)
+    if (res.code === 200) isCollected.value = res.data
+  } catch (e) {
+    console.log('检查收藏状态失败', e)
+  }
+}
+
 const loadComments = async () => {
   const res = await evaluationsApi.list(route.params.id, { page: 1, size: 50 })
-  if (res.code === 200) comments.value = res.data.records || []
+  if (res.code === 200) {
+    comments.value = res.data.records || []
+    if (userStore.isLoggedIn) {
+      for (const comment of comments.value) {
+        const checkRes = await evaluationsApi.checkUpvote(comment.id)
+        if (checkRes.code === 200) {
+          comment.isUpvoted = checkRes.data
+        }
+      }
+    }
+  }
 }
 
 // 检查是否已预约
@@ -225,8 +245,22 @@ const submitComment = async () => {
 }
 
 const handleUpvote = async (comment) => {
-  await evaluationsApi.upvote(comment.id)
-  comment.upvoteCount++
+  if (!userStore.isLoggedIn) return ElMessage.warning('请先登录')
+  if (comment.isUpvoted) {
+    await evaluationsApi.cancelUpvote(comment.id)
+    comment.isUpvoted = false
+    comment.upvoteCount--
+    ElMessage.success('取消点赞')
+  } else {
+    const res = await evaluationsApi.upvote(comment.id)
+    if (res.code === 200) {
+      comment.isUpvoted = true
+      comment.upvoteCount++
+      ElMessage.success('点赞成功')
+    } else {
+      ElMessage.error(res.message || '点赞失败')
+    }
+  }
 }
 
 const submitOrder = async () => {
@@ -262,6 +296,7 @@ onMounted(() => {
   loadComments()
   checkBookingStatus()
   checkRentalStatus()
+  checkCollectStatus()
 })
 
 // 监听房源数据加载，填充租赁表单的月租金

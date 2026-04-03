@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
+import java.time.Period;
 
 /**
  * 房屋租赁服务实现
@@ -62,7 +62,9 @@ public class HouseRentalServiceImpl implements HouseRentalService {
 
         // 计算租赁月数和总金额
         if (rental.getStartDate() != null && rental.getEndDate() != null && rental.getMonthlyRent() != null) {
-            long months = ChronoUnit.MONTHS.between(rental.getStartDate(), rental.getEndDate());
+            Period period = Period.between(rental.getStartDate(), rental.getEndDate());
+            // TODO 测试
+            long months = period.getMonths();;
             if (months < 1)
                 months = 1;
             rental.setTotalAmount(rental.getMonthlyRent().multiply(java.math.BigDecimal.valueOf(months)));

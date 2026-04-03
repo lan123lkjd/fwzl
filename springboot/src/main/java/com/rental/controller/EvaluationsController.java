@@ -64,6 +64,15 @@ public class EvaluationsController {
         return Result.success();
     }
 
+    @GetMapping("/upvote/check/{id}")
+    @Operation(summary = "检查是否已点赞")
+    public Result<Boolean> checkUpvote(@PathVariable Long id, @RequestAttribute(value = "userId", required = false) Long userId) {
+        if (userId == null) {
+            return Result.success(false);
+        }
+        return Result.success(evaluationsService.hasUpvoted(id, userId));
+    }
+
     @DeleteMapping("/{id}")
     @Operation(summary = "删除评论")
     public Result<Void> delete(@PathVariable Long id, @RequestAttribute("userId") Long userId) {

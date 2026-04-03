@@ -130,4 +130,27 @@ public class HouseServiceImpl extends ServiceImpl<HouseMapper, House> implements
                 .orderByDesc(House::getViewCount)
                 .last("LIMIT " + limit));
     }
+
+    @Override
+    public PageResult<House> getCollectList(Long userId, Integer page, Integer size) {
+        List<Long> houseIds = collectMapper.selectList(new LambdaQueryWrapper<com.rental.entity.UserCollect>()
+                .eq(com.rental.entity.UserCollect::getUserId, userId)
+                .select(com.rental.entity.UserCollect::getHouseId))
+                .stream()
+                .map(com.rental.entity.UserCollect::getHouseId)
+                .toList();
+
+        if (houseIds.isEmpty()) {
+            return new PageResult<>(0L, 0L, (long) page, (long) size, List.of());
+        }
+
+        Page<House> pageParam = new Page<>(page, size);
+        LambdaQueryWrapper<House> wrapper = new LambdaQueryWrapper<>();
+        wrapper.in(House::getId, houseIds)
+                .orderByDesc(House::getCreateTime);
+        Page<House> result = page(pageParam, wrapper);
+
+        return new PageResult<>(result.getTotal(), result.getPages(),
+                result.getCurrent(), result.getSize(), result.getRecords());
+    }
 }

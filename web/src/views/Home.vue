@@ -85,7 +85,7 @@
       <el-row :gutter="20">
         <el-col :span="8" v-for="news in newsList" :key="news.id">
           <div class="news-card" @click="router.push(`/news/${news.id}`)">
-            <img :src="news.coverImage || '/default-news.jpg'" class="cover" alt="">
+            <img :src="getImageUrl(news.coverImage)" class="cover" alt="">
             <div class="info">
               <div class="title">{{ news.title }}</div>
               <div class="summary">{{ news.summary }}</div>
@@ -122,6 +122,7 @@ import { houseApi } from '@/api/house'
 import { newsApi, commonApi } from '@/api/common'
 import { useUserStore } from '@/store/user'
 import ChatRoom from '@/components/ChatRoom.vue'
+import defaultImage from '@/image/default-news.png'
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -162,6 +163,13 @@ const handleSearch = () => {
 
 const goDetail = (id) => {
   router.push(`/house/${id}`)
+}
+
+// 处理图片URL
+const getImageUrl = (path) => {
+  if (!path) return defaultImage
+  if (path.startsWith('http')) return path
+  return path
 }
 
 onMounted(loadData)

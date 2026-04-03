@@ -11,5 +11,7 @@ export const houseApi = {
     updateStatus: (id, status) => request.put(`/house/status/${id}`, null, { params: { status } }),
     landlordList: (params) => request.get('/house/landlord', { params }),
     collect: (id) => request.post(`/house/collect/${id}`),
-    cancelCollect: (id) => request.delete(`/house/collect/${id}`)
+    cancelCollect: (id) => request.delete(`/house/collect/${id}`),
+    checkCollect: (id) => request.get(`/house/collect/check/${id}`),
+    collectList: (params) => request.get('/house/collect/list', { params })
 }

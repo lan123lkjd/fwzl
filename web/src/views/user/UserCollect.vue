@@ -21,8 +21,7 @@ import { houseApi } from '@/api/house'
 const list = ref([])
 
 onMounted(async () => {
-  // 这里简化处理，实际应通过专门的收藏列表接口获取
-  const res = await houseApi.recommend(10)
-  list.value = res.data || []
+  const res = await houseApi.collectList({ page: 1, size: 100 })
+  if (res.code === 200) list.value = res.data.records || []
 })
 </script>

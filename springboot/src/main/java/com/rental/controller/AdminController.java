@@ -66,6 +66,15 @@ public class AdminController {
         return Result.success();
     }
 
+    @PutMapping("/user/{id}")
+    @Operation(summary = "编辑用户")
+    public Result<Void> updateUser(@PathVariable Long id, @RequestBody User user) {
+        user.setId(id);
+        user.setPassword(null);
+        userService.updateById(user);
+        return Result.success();
+    }
+
     // ========== 房源管理 ==========
     @GetMapping("/house/list")
     @Operation(summary = "房源列表(管理)")

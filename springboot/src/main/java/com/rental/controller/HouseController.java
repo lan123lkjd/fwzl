@@ -157,4 +157,25 @@ public class HouseController {
 
         return Result.success();
     }
+
+    @GetMapping("/collect/check/{id}")
+    @Operation(summary = "检查是否已收藏")
+    public Result<Boolean> checkCollect(@PathVariable Long id, @RequestAttribute(value = "userId", required = false) Long userId) {
+        if (userId == null) {
+            return Result.success(false);
+        }
+        Long count = collectMapper.selectCount(new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<UserCollect>()
+                .eq(UserCollect::getUserId, userId)
+                .eq(UserCollect::getHouseId, id));
+        return Result.success(count > 0);
+    }
+
+    @GetMapping("/collect/list")
+    @Operation(summary = "用户收藏列表")
+    public Result<PageResult<House>> collectList(
+            @RequestAttribute("userId") Long userId,
+            @RequestParam(defaultValue = "1") Integer page,
+            @RequestParam(defaultValue = "10") Integer size) {
+        return Result.success(houseService.getCollectList(userId, page, size));
+    }
 }
