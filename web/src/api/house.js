@@ -13,5 +13,7 @@ export const houseApi = {
     collect: (id) => request.post(`/house/collect/${id}`),
     cancelCollect: (id) => request.delete(`/house/collect/${id}`),
     checkCollect: (id) => request.get(`/house/collect/check/${id}`),
-    collectList: (params) => request.get('/house/collect/list', { params })
+    collectList: (params) => request.get('/house/collect/list', { params }),
+    browseHistory: (params) => request.get('/house/history', { params }),
+    clearHistory: () => request.delete('/house/history')
 }

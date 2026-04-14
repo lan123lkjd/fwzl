@@ -24,6 +24,7 @@ const routes = [
             { path: 'orders', name: 'UserOrders', component: () => import('@/views/user/UserOrders.vue') },
             { path: 'rentals', name: 'UserRentals', component: () => import('@/views/user/UserRentals.vue') },
             { path: 'collect', name: 'UserCollect', component: () => import('@/views/user/UserCollect.vue') },
+            { path: 'history', name: 'UserHistory', component: () => import('@/views/user/UserHistory.vue') },
         ]
     },
     {

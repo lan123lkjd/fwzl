@@ -12,6 +12,7 @@
           <router-link to="/user/orders" class="nav-item">我的预约</router-link>
           <router-link to="/user/rentals" class="nav-item">我的租赁</router-link>
           <router-link to="/user/collect" class="nav-item">我的收藏</router-link>
+          <router-link to="/user/history" class="nav-item">浏览历史</router-link>
         </nav>
         
         <div class="user-actions">

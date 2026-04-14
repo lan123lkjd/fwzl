@@ -44,13 +44,12 @@ public class HouseController {
             @RequestParam(defaultValue = "1") Integer page,
             @RequestParam(defaultValue = "10") Integer size,
             @RequestParam(required = false) Long areaId,
-            @RequestParam(required = false) Long communityId,
             @RequestParam(required = false) Integer houseType,
             @RequestParam(required = false) BigDecimal minPrice,
             @RequestParam(required = false) BigDecimal maxPrice,
             @RequestParam(required = false) String keyword) {
         return Result.success(
-                houseService.listPage(page, size, areaId, communityId, houseType, minPrice, maxPrice, keyword));
+                houseService.listPage(page, size, areaId, houseType, minPrice, maxPrice, keyword));
     }
 
     @GetMapping("/detail/{id}")
@@ -177,5 +176,21 @@ public class HouseController {
             @RequestParam(defaultValue = "1") Integer page,
             @RequestParam(defaultValue = "10") Integer size) {
         return Result.success(houseService.getCollectList(userId, page, size));
+    }
+
+    @GetMapping("/history")
+    @Operation(summary = "用户浏览历史")
+    public Result<PageResult<House>> browseHistory(
+            @RequestAttribute("userId") Long userId,
+            @RequestParam(defaultValue = "1") Integer page,
+            @RequestParam(defaultValue = "10") Integer size) {
+        return Result.success(houseService.getBrowseHistory(userId, page, size));
+    }
+
+    @DeleteMapping("/history")
+    @Operation(summary = "清空浏览历史")
+    public Result<Void> clearHistory(@RequestAttribute("userId") Long userId) {
+        houseService.clearBrowseHistory(userId);
+        return Result.success();
     }
 }

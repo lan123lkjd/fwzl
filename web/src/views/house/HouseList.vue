@@ -2,7 +2,7 @@
   <div class="container">
     <div class="search-bar">
       <el-input v-model="filters.keyword" placeholder="搜索关键词" clearable style="width: 200px" />
-      <el-select v-model="filters.areaId" placeholder="选择区域" clearable style="width: 150px">
+      <el-select v-model="filters.areaId" placeholder="选择地区" clearable style="width: 150px">
         <el-option v-for="area in areaList" :key="area.id" :label="area.name" :value="area.id" />
       </el-select>
       <el-select v-model="filters.houseType" placeholder="租赁方式" clearable style="width: 120px">
@@ -18,7 +18,7 @@
     
     <div class="house-grid">
       <div v-for="house in list" :key="house.id" class="house-card" @click="goDetail(house.id)">
-        <img :src="house.coverImage || '/default-house.jpg'" class="cover" alt="">
+        <img :src="getImageUrl(house.coverImage)" class="cover" alt="">
         <div class="info">
           <div class="title">{{ house.title }}</div>
           <div class="address">{{ house.address }}</div>
@@ -59,6 +59,12 @@ const size = ref(12)
 const total = ref(0)
 const filters = reactive({ keyword: '', areaId: null, houseType: null, minPrice: '', maxPrice: '' })
 
+const getImageUrl = (path) => {
+  if (!path) return '/default-house.jpg'
+  if (path.startsWith('http')) return path
+  return `http://localhost:8080${path}`
+}
+
 const loadData = async () => {
   const res = await houseApi.list({ page: page.value, size: size.value, ...filters })
   if (res.code === 200) {
@@ -68,7 +74,7 @@ const loadData = async () => {
 }
 
 const loadAreas = async () => {
-  const res = await commonApi.areaList(0)
+  const res = await commonApi.areaList(1)
   areaList.value = res.data || []
 }
 

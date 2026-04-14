@@ -7,7 +7,7 @@
       <div style="display: flex; align-items: center; gap: 24px ;margin-left: 50px;margin-bottom: 30px;">
         <el-upload
           class="avatar-uploader"
-          action="/api/upload"
+          action="/api/upload/avatar"
           :show-file-list="false"
           :on-success="handleAvatarSuccess"
           :before-upload="beforeAvatarUpload"
@@ -50,7 +50,7 @@
         <el-form-item label="身份证人像面" required>
           <el-upload
             class="id-card-uploader"
-            action="/api/upload"
+            action="/api/upload/idcard"
             :show-file-list="false"
             :on-success="(res) => handleIdCardSuccess(res, 'front')"
             :before-upload="beforeIdCardUpload"
@@ -66,7 +66,7 @@
         <el-form-item label="身份证国徽面" required>
           <el-upload
             class="id-card-uploader"
-            action="/api/upload"
+            action="/api/upload/idcard"
             :show-file-list="false"
             :on-success="(res) => handleIdCardSuccess(res, 'back')"
             :before-upload="beforeIdCardUpload"

@@ -26,7 +26,7 @@
           <el-tag :type="getStatusType(row.status)">{{ getStatusText(row.status) }}</el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="操作" width="200">
+      <el-table-column label="操作" width="250">
         <template #default="{ row }">
           <template v-if="row.status === 0">
             <el-button size="small" type="success" @click="handleAudit(row.id, 1)">通过</el-button>
@@ -38,6 +38,7 @@
               {{ row.status === 1 ? '下架' : '上架' }}
             </el-button>
           </template>
+          <el-button size="small" type="danger" @click="handleDelete(row.id)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -47,7 +48,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { adminApi } from '@/api/admin'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
 
 const list = ref([])
 const status = ref(null)
@@ -64,6 +65,19 @@ const handleAudit = async (id, newStatus) => {
   await adminApi.auditHouse(id, newStatus)
   ElMessage.success('操作成功')
   loadData()
+}
+
+const handleDelete = async (id) => {
+  try {
+    await ElMessageBox.confirm('确定要删除该房源吗？删除后无法恢复', '提示', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning'
+    })
+    await adminApi.deleteHouse(id)
+    ElMessage.success('删除成功')
+    loadData()
+  } catch {}
 }
 
 onMounted(loadData)

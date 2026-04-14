@@ -21,8 +21,6 @@ public class House implements Serializable {
 
     private Long landlordId;
 
-    private Long communityId;
-
     private Long areaId;
 
     private String address;

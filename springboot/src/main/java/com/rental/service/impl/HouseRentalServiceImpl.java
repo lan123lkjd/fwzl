@@ -63,8 +63,7 @@ public class HouseRentalServiceImpl implements HouseRentalService {
         // 计算租赁月数和总金额
         if (rental.getStartDate() != null && rental.getEndDate() != null && rental.getMonthlyRent() != null) {
             Period period = Period.between(rental.getStartDate(), rental.getEndDate());
-            // TODO 测试
-            long months = period.getMonths();;
+            long months = period.getYears() * 12L + period.getMonths();
             if (months < 1)
                 months = 1;
             rental.setTotalAmount(rental.getMonthlyRent().multiply(java.math.BigDecimal.valueOf(months)));
@@ -94,7 +93,7 @@ public class HouseRentalServiceImpl implements HouseRentalService {
         // 更新房源状态为已出租
         House house = houseMapper.selectById(rental.getHouseId());
         if (house != null) {
-            house.setStatus(2); // 已出租
+            house.setStatus(3); // 已出租
             houseMapper.updateById(house);
         }
     }
@@ -168,9 +167,19 @@ public class HouseRentalServiceImpl implements HouseRentalService {
             throw new RuntimeException("当前状态不允许取消");
         }
 
+        int oldStatus = rental.getStatus();
         rental.setStatus(3); // 已取消
         rental.setUpdateTime(LocalDateTime.now());
         rentalMapper.updateById(rental);
+
+        // 如果取消的是租赁中的订单，恢复房源状态为可出租
+        if (oldStatus == 1) {
+            House house = houseMapper.selectById(rental.getHouseId());
+            if (house != null && house.getStatus() == 3) {
+                house.setStatus(1); // 恢复为可出租
+                houseMapper.updateById(house);
+            }
+        }
     }
 
     @Override

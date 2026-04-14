@@ -95,6 +95,13 @@ public class AdminController {
         return Result.success();
     }
 
+    @DeleteMapping("/house/{id}")
+    @Operation(summary = "删除房源")
+    public Result<Void> deleteHouse(@PathVariable Long id) {
+        houseService.removeById(id);
+        return Result.success();
+    }
+
     // ========== 房东管理 ==========
     @GetMapping("/landlord/list")
     @Operation(summary = "房东列表")

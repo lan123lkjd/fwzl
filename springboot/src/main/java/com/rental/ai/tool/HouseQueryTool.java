@@ -39,9 +39,8 @@ public class HouseQueryTool {
         StringBuilder sql = new StringBuilder();
         sql.append("SELECT h.id, h.title, h.price, h.area AS house_area, h.rooms, h.halls, h.bathrooms, ");
         sql.append("h.floor, h.total_floor, h.orientation, h.decoration, h.house_type, h.address, h.description, ");
-        sql.append("c.name AS community_name, a.name AS area_name ");
+        sql.append("a.name AS area_name ");
         sql.append("FROM house h ");
-        sql.append("LEFT JOIN community c ON h.community_id = c.id ");
         sql.append("LEFT JOIN area a ON h.area_id = a.id ");
         sql.append("WHERE h.status = 1 AND h.deleted = 0 ");
 
@@ -105,9 +104,7 @@ public class HouseQueryTool {
                 Map<String, Object> house = results.get(i);
                 response.append("【").append(i + 1).append("】").append(house.get("title")).append("\n");
                 response.append("   📍 位置：").append(house.get("area_name"));
-                if (house.get("community_name") != null) {
-                    response.append(" - ").append(house.get("community_name"));
-                }
+                response.append(" ").append(house.get("address"));
                 response.append("\n");
                 response.append("   💰 租金：").append(house.get("price")).append("元/月\n");
                 response.append("   🏠 户型：").append(house.get("rooms")).append("室");
@@ -164,10 +161,8 @@ public class HouseQueryTool {
             return "请提供有效的房源ID。";
         }
 
-        String sql = "SELECT h.*, c.name AS community_name, c.property_company, c.property_fee, " +
-                "a.name AS area_name, l.real_name AS landlord_name, l.contact AS landlord_contact " +
+        String sql = "SELECT h.*, a.name AS area_name, l.real_name AS landlord_name, l.contact AS landlord_contact " +
                 "FROM house h " +
-                "LEFT JOIN community c ON h.community_id = c.id " +
                 "LEFT JOIN area a ON h.area_id = a.id " +
                 "LEFT JOIN landlord l ON h.landlord_id = l.id " +
                 "WHERE h.id = ? AND h.deleted = 0";
@@ -193,17 +188,6 @@ public class HouseQueryTool {
             response.append("🎨 装修：").append(house.get("decoration")).append("\n");
             response.append("🏢 楼层：").append(house.get("floor")).append("/").append(house.get("total_floor"))
                     .append("层\n");
-
-            if (house.get("community_name") != null) {
-                response.append("\n📌 小区信息：\n");
-                response.append("   小区名称：").append(house.get("community_name")).append("\n");
-                if (house.get("property_company") != null) {
-                    response.append("   物业公司：").append(house.get("property_company")).append("\n");
-                }
-                if (house.get("property_fee") != null) {
-                    response.append("   物业费：").append(house.get("property_fee")).append("元/月/㎡\n");
-                }
-            }
 
             response.append("\n📝 房源描述：\n").append(house.get("description")).append("\n");
 

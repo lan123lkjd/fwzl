@@ -69,7 +69,7 @@
               v-model="userInput"
               @keydown.enter.exact.prevent="sendMessage"
               @keydown.enter.shift.exact.prevent="userInput += '\n'"
-              placeholder="输入你的租房需求，如：朝阳区两居室，预算8000以内..."
+              placeholder="输入你的租房需求，如：青秀区两居室，预算2500以内..."
               :disabled="isLoading"
               rows="1"
               ref="textareaRef"
@@ -145,10 +145,10 @@ export default {
 
     // 快捷问题
     const quickQuestions = [
-      '朝阳区有什么房源？',
-      '5000元以下的两居室',
-      '海淀区精装修房源',
-      '浦东新区整租房源',
+      '青秀区有什么房源？',
+      '2000元以下的两居室',
+      '西乡塘区精装修房源',
+      '江南区整租房源',
       '有哪些区域可以选择？'
     ]
 

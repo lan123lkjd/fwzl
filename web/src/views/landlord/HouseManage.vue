@@ -16,9 +16,10 @@
       <el-table-column label="操作" width="150">
         <template #default="{ row }">
           <el-button size="small" @click="$router.push(`/landlord/house/edit/${row.id}`)">编辑</el-button>
-          <el-button size="small" :type="row.status === 1 ? 'warning' : 'success'" @click="toggleStatus(row)">
-            {{ row.status === 1 ? '下架' : '上架' }}
-          </el-button>
+          <el-button v-if="row.status === 1" size="small" type="warning" @click="toggleStatus(row)">下架</el-button>
+          <el-button v-if="row.status === 2" size="small" type="success" @click="toggleStatus(row)">上架</el-button>
+          <el-tag v-if="row.status === 0" size="small" type="info">等待审核</el-tag>
+          <el-tag v-if="row.status === 3" size="small" type="danger">已出租</el-tag>
         </template>
       </el-table-column>
     </el-table>

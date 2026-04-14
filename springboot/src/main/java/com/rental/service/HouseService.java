@@ -15,7 +15,7 @@ public interface HouseService extends IService<House> {
     /**
      * 分页查询房源
      */
-    PageResult<House> listPage(Integer page, Integer size, Long areaId, Long communityId,
+    PageResult<House> listPage(Integer page, Integer size, Long areaId,
             Integer houseType, BigDecimal minPrice, BigDecimal maxPrice, String keyword);
 
     /**
@@ -62,4 +62,14 @@ public interface HouseService extends IService<House> {
      * 获取用户收藏列表
      */
     PageResult<House> getCollectList(Long userId, Integer page, Integer size);
+
+    /**
+     * 获取用户浏览历史
+     */
+    PageResult<House> getBrowseHistory(Long userId, Integer page, Integer size);
+
+    /**
+     * 清空用户浏览历史
+     */
+    void clearBrowseHistory(Long userId);
 }

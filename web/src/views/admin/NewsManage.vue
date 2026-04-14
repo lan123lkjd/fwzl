@@ -35,7 +35,7 @@
         <el-form-item label="封面">
           <el-upload
             class="cover-uploader"
-            action="/api/upload"
+            action="/api/upload/news"
             :show-file-list="false"
             :on-success="handleCoverSuccess"
             :before-upload="beforeCoverUpload"

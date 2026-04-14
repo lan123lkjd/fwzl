@@ -28,7 +28,19 @@ public class LandlordServiceImpl extends ServiceImpl<LandlordMapper, Landlord> i
         // 检查是否已申请
         Landlord existing = getByUserId(landlord.getUserId());
         if (existing != null) {
-            throw new RuntimeException("已提交申请，请勿重复提交");
+            // 如果已认证通过，不允许重复申请
+            if (existing.getVerifyStatus() == 1) {
+                throw new RuntimeException("您已是认证房东，无需重复申请");
+            }
+            // 如果待审核中，不允许重复申请
+            if (existing.getVerifyStatus() == 0) {
+                throw new RuntimeException("已提交申请，请等待审核");
+            }
+            // 如果被拒绝，允许重新申请（更新原记录）
+            landlord.setId(existing.getId());
+            landlord.setVerifyStatus(0); // 重置为待审核
+            landlord.setVerifyRemark(null);
+            return updateById(landlord);
         }
         landlord.setVerifyStatus(0); // 待审核
         return save(landlord);

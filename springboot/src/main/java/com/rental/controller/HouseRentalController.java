@@ -87,7 +87,7 @@ public class HouseRentalController {
             @RequestAttribute("userId") Long userId,
             @RequestParam(required = false) Integer status,
             @RequestParam(defaultValue = "1") Integer page,
-            @RequestParam(defaultValue = "10") Integer size) {
+            @RequestParam(defaultValue = "10") Integer size)     {
         return Result.success(rentalService.listByUser(userId, status, page, size));
     }
 

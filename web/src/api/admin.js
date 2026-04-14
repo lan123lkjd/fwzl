@@ -10,6 +10,7 @@ export const adminApi = {
     // 房源管理
     houseList: (status) => request.get('/admin/house/list', { params: { status } }),
     auditHouse: (id, status, remark) => request.put(`/admin/house/audit/${id}`, null, { params: { status, remark } }),
+    deleteHouse: (id) => request.delete(`/admin/house/${id}`),
 
     // 房东管理
     landlordList: (params) => request.get('/admin/landlord/list', { params }),
