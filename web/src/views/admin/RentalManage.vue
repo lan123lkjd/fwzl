@@ -1,8 +1,6 @@
 <template>
-  <div class="rental-manage">
-    <div class="page-header">
-      <h2>租赁管理</h2>
-    </div>
+  <div>
+    <div class="page-header"><h2>租赁管理</h2></div>
 
     <el-tabs v-model="activeTab" @tab-change="loadData">
       <el-tab-pane label="全部" name="all" />
@@ -26,6 +24,11 @@
           ¥{{ row.monthlyRent }}
         </template>
       </el-table-column>
+      <el-table-column prop="deposit" label="押金" width="100">
+        <template #default="{ row }">
+          ¥{{ row.deposit || 0 }}
+        </template>
+      </el-table-column>
       <el-table-column prop="contactName" label="联系人" width="100" />
       <el-table-column prop="contactPhone" label="联系电话" width="120" />
       <el-table-column prop="status" label="状态" width="100">
@@ -34,32 +37,17 @@
         </template>
       </el-table-column>
       <el-table-column prop="createTime" label="申请时间" width="160" />
-      <el-table-column label="操作" width="180" fixed="right">
-        <template #default="{ row }">
-          <template v-if="row.status === 0">
-            <el-button size="small" type="success" @click="handleConfirm(row.id)">确认</el-button>
-            <el-button size="small" type="danger" @click="handleReject(row.id)">拒绝</el-button>
-          </template>
-          <el-button v-if="row.status === 2" size="small" type="primary" @click="handleComplete(row.id)">完成租赁</el-button>
-        </template>
-      </el-table-column>
     </el-table>
 
     <div class="pagination-wrapper">
-      <el-pagination 
-        v-model:current-page="page" 
-        :total="total" 
-        layout="prev, pager, next" 
-        @current-change="loadData" 
-      />
+      <el-pagination v-model:current-page="page" :total="total" layout="prev, pager, next" @current-change="loadData" />
     </div>
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { rentalApi } from '@/api/rental'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { adminApi } from '@/api/admin'
 
 const list = ref([])
 const page = ref(1)
@@ -75,7 +63,7 @@ const loadData = async () => {
       params.status = parseInt(activeTab.value)
     }
   }
-  const res = await rentalApi.landlordList(params)
+  const res = await adminApi.rentalList(params)
   if (res.code === 200) {
     list.value = res.data.records || []
     total.value = res.data.total || 0
@@ -84,43 +72,6 @@ const loadData = async () => {
 
 const getStatusText = (s) => ({ 0: '待确认', 1: '待支付', 2: '租赁中', 3: '已完成', 4: '已取消', 5: '已拒绝' }[s] || '-')
 const getStatusType = (s) => ({ 0: 'warning', 1: 'danger', 2: 'primary', 3: 'success', 4: 'info', 5: 'danger' }[s] || '')
-
-const handleConfirm = async (id) => {
-  await ElMessageBox.confirm('确定要确认此租赁申请吗？确认后用户将进行支付。', '提示', { type: 'warning' })
-  const res = await rentalApi.confirm(id)
-  if (res.code === 200) {
-    ElMessage.success('已确认，等待用户支付')
-    loadData()
-  } else {
-    ElMessage.error(res.message || '操作失败')
-  }
-}
-
-const handleReject = async (id) => {
-  const { value: remark } = await ElMessageBox.prompt('请输入拒绝原因（可选）', '拒绝租赁', {
-    confirmButtonText: '确定',
-    cancelButtonText: '取消',
-    inputPlaceholder: '拒绝原因'
-  })
-  const res = await rentalApi.reject(id, remark || '')
-  if (res.code === 200) {
-    ElMessage.success('已拒绝')
-    loadData()
-  } else {
-    ElMessage.error(res.message || '操作失败')
-  }
-}
-
-const handleComplete = async (id) => {
-  await ElMessageBox.confirm('确定要结束此租赁吗？房源将重新变为可出租状态。', '提示', { type: 'warning' })
-  const res = await rentalApi.complete(id)
-  if (res.code === 200) {
-    ElMessage.success('租赁已完成')
-    loadData()
-  } else {
-    ElMessage.error(res.message || '操作失败')
-  }
-}
 
 onMounted(loadData)
 </script>

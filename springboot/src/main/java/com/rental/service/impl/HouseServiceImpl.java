@@ -4,9 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.rental.common.PageResult;
-import com.rental.entity.Area;
 import com.rental.entity.House;
-import com.rental.mapper.AreaMapper;
 import com.rental.mapper.HouseMapper;
 import com.rental.mapper.UserBrowseHistoryMapper;
 import com.rental.mapper.UserCollectMapper;
@@ -17,7 +15,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -35,18 +32,6 @@ public class HouseServiceImpl extends ServiceImpl<HouseMapper, House> implements
     @Autowired
     private CollaborativeFilteringService cfService;
 
-    @Autowired
-    private AreaMapper areaMapper;
-
-    private void findAllChildAreaIds(Long parentId, List<Long> result) {
-        List<Area> children = areaMapper.selectList(new LambdaQueryWrapper<Area>()
-                .eq(Area::getParentId, parentId));
-        for (Area child : children) {
-            result.add(child.getId());
-            findAllChildAreaIds(child.getId(), result);
-        }
-    }
-
     @Override
     public PageResult<House> listPage(Integer page, Integer size, Long areaId,
             Integer houseType, BigDecimal minPrice, BigDecimal maxPrice, String keyword) {
@@ -56,10 +41,7 @@ public class HouseServiceImpl extends ServiceImpl<HouseMapper, House> implements
         wrapper.eq(House::getStatus, 1);
 
         if (areaId != null) {
-            List<Long> allAreaIds = new ArrayList<>();
-            allAreaIds.add(areaId);
-            findAllChildAreaIds(areaId, allAreaIds);
-            wrapper.in(House::getAreaId, allAreaIds);
+            wrapper.eq(House::getAreaId, areaId);
         }
         if (houseType != null) {
             wrapper.eq(House::getHouseType, houseType);

@@ -81,14 +81,26 @@ public class HouseRentalController {
         }
     }
 
+    @PutMapping("/pay/{id}")
+    @Operation(summary = "支付租赁(用户)")
+    public Result<Void> pay(@PathVariable Long id, @RequestAttribute("userId") Long userId) {
+        try {
+            rentalService.pay(id, userId);
+            return Result.success();
+        } catch (Exception e) {
+            return Result.error(e.getMessage());
+        }
+    }
+
     @GetMapping("/user")
     @Operation(summary = "用户租赁列表")
     public Result<PageResult<HouseRental>> listByUser(
             @RequestAttribute("userId") Long userId,
             @RequestParam(required = false) Integer status,
+            @RequestParam(required = false) String statusList,
             @RequestParam(defaultValue = "1") Integer page,
-            @RequestParam(defaultValue = "10") Integer size)     {
-        return Result.success(rentalService.listByUser(userId, status, page, size));
+            @RequestParam(defaultValue = "10") Integer size) {
+        return Result.success(rentalService.listByUser(userId, status, statusList, page, size));
     }
 
     @GetMapping("/landlord")
@@ -96,9 +108,10 @@ public class HouseRentalController {
     public Result<PageResult<HouseRental>> listByLandlord(
             @RequestAttribute("userId") Long landlordId,
             @RequestParam(required = false) Integer status,
+            @RequestParam(required = false) String statusList,
             @RequestParam(defaultValue = "1") Integer page,
             @RequestParam(defaultValue = "10") Integer size) {
-        return Result.success(rentalService.listByLandlord(landlordId, status, page, size));
+        return Result.success(rentalService.listByLandlord(landlordId, status, statusList, page, size));
     }
 
     @GetMapping("/detail/{id}")

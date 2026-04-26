@@ -3,8 +3,8 @@ import { ref, computed } from 'vue'
 import { authApi } from '@/api/auth'
 
 export const useUserStore = defineStore('user', () => {
-    const token = ref(localStorage.getItem('token') || '')
-    const user = ref(JSON.parse(localStorage.getItem('user') || 'null'))
+    const token = ref(sessionStorage.getItem('token') || '')
+    const user = ref(JSON.parse(sessionStorage.getItem('user') || 'null'))
 
     const isLoggedIn = computed(() => !!token.value)
     const isAdmin = computed(() => user.value?.role === 0)
@@ -16,8 +16,8 @@ export const useUserStore = defineStore('user', () => {
         if (res.code === 200) {
             token.value = res.data.token
             user.value = res.data.user
-            localStorage.setItem('token', res.data.token)
-            localStorage.setItem('user', JSON.stringify(res.data.user))
+            sessionStorage.setItem('token', res.data.token)
+            sessionStorage.setItem('user', JSON.stringify(res.data.user))
         }
         return res
     }
@@ -29,8 +29,8 @@ export const useUserStore = defineStore('user', () => {
     function logout() {
         token.value = ''
         user.value = null
-        localStorage.removeItem('token')
-        localStorage.removeItem('user')
+        sessionStorage.removeItem('token')
+        sessionStorage.removeItem('user')
     }
 
     async function fetchUserInfo() {
@@ -38,7 +38,7 @@ export const useUserStore = defineStore('user', () => {
         const res = await authApi.getUserInfo()
         if (res.code === 200) {
             user.value = res.data
-            localStorage.setItem('user', JSON.stringify(res.data))
+            sessionStorage.setItem('user', JSON.stringify(res.data))
         }
     }
 

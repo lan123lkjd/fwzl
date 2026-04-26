@@ -24,25 +24,20 @@ DROP TABLE IF EXISTS `area`;
 CREATE TABLE `area`  (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '地区ID',
   `name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '地区名称',
-  `parent_id` bigint NULL DEFAULT 0 COMMENT '父级ID',
-  `level` tinyint NULL DEFAULT 1 COMMENT '层级: 1-省, 2-市, 3-区/县',
-  `sort` int NULL DEFAULT 0 COMMENT '排序',
   `create_time` datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  PRIMARY KEY (`id`) USING BTREE,
-  INDEX `idx_parent_id`(`parent_id` ASC) USING BTREE
+  PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 12 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '地区表' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of area
 -- ----------------------------
-INSERT INTO `area` VALUES (1, '南宁市', 0, 1, 1, '2026-01-12 21:53:03');
-INSERT INTO `area` VALUES (4, '青秀区', 1, 2, 1, '2026-01-12 21:53:03');
-INSERT INTO `area` VALUES (5, '兴宁区', 1, 2, 2, '2026-01-12 21:53:03');
-INSERT INTO `area` VALUES (6, '江南区', 1, 2, 3, '2026-01-12 21:53:03');
-INSERT INTO `area` VALUES (7, '西乡塘区', 1, 2, 4, '2026-01-12 21:53:03');
-INSERT INTO `area` VALUES (8, '良庆区', 1, 2, 5, '2026-01-12 21:53:03');
-INSERT INTO `area` VALUES (9, '邕宁区', 1, 2, 6, '2026-01-12 21:53:03');
-INSERT INTO `area` VALUES (10, '武鸣区', 1, 2, 7, '2026-01-12 21:53:03');
+INSERT INTO `area` VALUES (4, '青秀区', '2026-01-12 21:53:03');
+INSERT INTO `area` VALUES (5, '兴宁区', '2026-01-12 21:53:03');
+INSERT INTO `area` VALUES (6, '江南区', '2026-01-12 21:53:03');
+INSERT INTO `area` VALUES (7, '西乡塘区', '2026-01-12 21:53:03');
+INSERT INTO `area` VALUES (8, '良庆区', '2026-01-12 21:53:03');
+INSERT INTO `area` VALUES (9, '邕宁区', '2026-01-12 21:53:03');
+INSERT INTO `area` VALUES (10, '武鸣区', '2026-01-12 21:53:03');
 
 -- ----------------------------
 -- Table structure for evaluations
@@ -54,7 +49,6 @@ CREATE TABLE `evaluations`  (
   `user_id` bigint NOT NULL COMMENT '用户ID',
   `content` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '评论内容',
   `parent_id` bigint NULL DEFAULT 0 COMMENT '父评论ID(0表示顶级评论)',
-  `reply_user_id` bigint NULL DEFAULT NULL COMMENT '回复的用户ID',
   `upvote_count` int NULL DEFAULT 0 COMMENT '点赞数',
   `create_time` datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_time` datetime NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
@@ -68,12 +62,12 @@ CREATE TABLE `evaluations`  (
 -- ----------------------------
 -- Records of evaluations
 -- ----------------------------
-INSERT INTO `evaluations` VALUES (1, 1, 4, '房子很不错，装修风格我很喜欢，房东人也很好说话。', 0, NULL, 16, '2026-01-12 21:53:03', '2026-01-12 21:53:03', 0);
-INSERT INTO `evaluations` VALUES (2, 1, 5, '位置很方便，出门就是地铁站，周边吃饭购物都很方便。', 0, NULL, 9, '2026-01-12 21:53:03', '2026-01-12 21:53:03', 0);
-INSERT INTO `evaluations` VALUES (3, 2, 4, '一居室很温馨，适合我们小两口住，就是面积稍微小了点。', 0, NULL, 5, '2026-01-12 21:53:03', '2026-01-12 21:53:03', 0);
-INSERT INTO `evaluations` VALUES (4, 3, 5, '豪华三居室名不虚传，家具家电都是品牌的，值这个价！', 0, NULL, 22, '2026-01-12 21:53:03', '2026-01-12 21:53:03', 0);
-INSERT INTO `evaluations` VALUES (5, 4, 4, '这的房子就是贵，但是真的很方便，适合金融行业的朋友。', 0, NULL, 18, '2026-01-12 21:53:03', '2026-01-12 21:53:03', 0);
-INSERT INTO `evaluations` VALUES (6, 4, 1, 'dada', 0, NULL, 2, '2026-02-02 23:49:36', '2026-02-08 22:36:33', 1);
+INSERT INTO `evaluations` VALUES (1, 1, 4, '房子很不错，装修风格我很喜欢，房东人也很好说话。', 0, 16, '2026-01-12 21:53:03', '2026-01-12 21:53:03', 0);
+INSERT INTO `evaluations` VALUES (2, 1, 5, '位置很方便，出门就是地铁站，周边吃饭购物都很方便。', 0, 9, '2026-01-12 21:53:03', '2026-01-12 21:53:03', 0);
+INSERT INTO `evaluations` VALUES (3, 2, 4, '一居室很温馨，适合我们小两口住，就是面积稍微小了点。', 0, 5, '2026-01-12 21:53:03', '2026-01-12 21:53:03', 0);
+INSERT INTO `evaluations` VALUES (4, 3, 5, '豪华三居室名不虚传，家具家电都是品牌的，值这个价！', 0, 22, '2026-01-12 21:53:03', '2026-01-12 21:53:03', 0);
+INSERT INTO `evaluations` VALUES (5, 4, 4, '这的房子就是贵，但是真的很方便，适合金融行业的朋友。', 0, 18, '2026-01-12 21:53:03', '2026-01-12 21:53:03', 0);
+INSERT INTO `evaluations` VALUES (6, 4, 1, 'dada', 0, 2, '2026-02-02 23:49:36', '2026-02-08 22:36:33', 1);
 
 -- ----------------------------
 -- Table structure for evaluations_upvote
@@ -160,8 +154,6 @@ CREATE TABLE `house`  (
   `decoration` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '装修情况',
   `house_type` tinyint NULL DEFAULT 1 COMMENT '房屋类型: 1-整租, 2-合租',
   `description` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '房源描述',
-  `facilities` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '配套设施(JSON)',
-  `images` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '房源图片(JSON数组)',
   `cover_image` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '封面图片',
   `status` tinyint NULL DEFAULT 0 COMMENT '状态: 0-待审核, 1-已上架, 2-已下架, 3-已出租',
   `view_count` int NULL DEFAULT 0 COMMENT '浏览次数',
@@ -179,12 +171,12 @@ CREATE TABLE `house`  (
 -- ----------------------------
 -- Records of house
 -- ----------------------------
-INSERT INTO `house` VALUES (1, '青秀区精装两居室 近地铁 拎包入住', 1, 4, '东盟商务区万象城旁3号楼1单元801室', 2500.00, 85.00, 2, 1, 1, 8, 18, '朝南', '精装修', 1, '房屋位于东盟商务区核心地段，交通便利，周边配套设施齐全。精装修两居室，家电家具齐全，可拎包入住。小区环境优美，物业管理完善。', NULL, NULL, 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800', 1, 274, 35, '2026-01-12 21:53:03', '2026-02-04 23:27:58', 0);
-INSERT INTO `house` VALUES (2, '兴宁区温馨一居室 适合情侣/单身', 1, 5, '朝阳广场附近5号楼2单元402室', 1800.00, 55.00, 1, 1, 1, 4, 12, '朝南', '精装修', 1, '位于兴宁区核心地段，靠近朝阳广场，适合在附近工作的白领。一居室布局合理，采光良好。', NULL, NULL, 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800', 1, 194, 28, '2026-01-12 21:53:03', '2026-03-23 19:24:00', 0);
-INSERT INTO `house` VALUES (3, '青秀区豪华三居室 全新装修 家电齐全', 2, 4, '凤岭北路8号楼1单元1502室', 3500.00, 120.00, 3, 2, 2, 15, 20, '朝南', '豪华装修', 1, '凤岭核心区域，三居室大户型，全新豪华装修。主卧带独立卫生间，客厅超大。适合家庭居住。', NULL, NULL, 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800', 1, 336, 48, '2026-01-12 21:53:03', '2026-01-12 21:53:03', 0);
-INSERT INTO `house` VALUES (4, '西乡塘区精品公寓 近地铁站', 2, 7, '广西大学附近A座2301室', 2000.00, 90.00, 2, 1, 1, 23, 35, '朝东', '豪华装修', 1, '地处西乡塘区核心地段，靠近广西大学，交通便利。高端精装公寓，周边配套完善。', NULL, NULL, 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800', 1, 432, 62, '2026-01-12 21:53:03', '2026-03-16 09:54:23', 0);
-INSERT INTO `house` VALUES (5, '江南区温馨两居室 采光极佳', 1, 6, '星光大道旁6号楼902室', 1500.00, 78.00, 2, 1, 1, 9, 16, '朝南', '精装修', 1, '位于江南区核心地段，环境优美空气清新。两居室格局方正，客厅开阔。周边商业配套完善。', NULL, NULL, 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800', 1, 181, 25, '2026-01-12 21:53:03', '2026-01-12 21:53:03', 0);
-INSERT INTO `house` VALUES (6, '良庆区舒适单间 交通便利', 1, 8, '五象大道50号', 1200.00, 25.00, 1, 0, 1, 5, 8, '朝北', '简单装修', 2, '五象新区核心地段，交通极其便利。单间配独立卫生间，适合单身上班族。', NULL, NULL, 'https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=800', 1, 108, 13, '2026-01-12 21:53:03', '2026-01-12 21:53:03', 0);
+INSERT INTO `house` VALUES (1, '青秀区精装两居室 近地铁 拎包入住', 1, 4, '东盟商务区万象城旁3号楼1单元801室', 2500.00, 85.00, 2, 1, 1, 8, 18, '朝南', '精装修', 1, '房屋位于东盟商务区核心地段，交通便利，周边配套设施齐全。精装修两居室，家电家具齐全，可拎包入住。小区环境优美，物业管理完善。', 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800', 1, 274, 35, '2026-01-12 21:53:03', '2026-02-04 23:27:58', 0);
+INSERT INTO `house` VALUES (2, '兴宁区温馨一居室 适合情侣/单身', 1, 5, '朝阳广场附近5号楼2单元402室', 1800.00, 55.00, 1, 1, 1, 4, 12, '朝南', '精装修', 1, '位于兴宁区核心地段，靠近朝阳广场，适合在附近工作的白领。一居室布局合理，采光良好。', 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800', 1, 194, 28, '2026-01-12 21:53:03', '2026-03-23 19:24:00', 0);
+INSERT INTO `house` VALUES (3, '青秀区豪华三居室 全新装修 家电齐全', 2, 4, '凤岭北路8号楼1单元1502室', 3500.00, 120.00, 3, 2, 2, 15, 20, '朝南', '豪华装修', 1, '凤岭核心区域，三居室大户型，全新豪华装修。主卧带独立卫生间，客厅超大。适合家庭居住。', 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800', 1, 336, 48, '2026-01-12 21:53:03', '2026-01-12 21:53:03', 0);
+INSERT INTO `house` VALUES (4, '西乡塘区精品公寓 近地铁站', 2, 7, '广西大学附近A座2301室', 2000.00, 90.00, 2, 1, 1, 23, 35, '朝东', '豪华装修', 1, '地处西乡塘区核心地段，靠近广西大学，交通便利。高端精装公寓，周边配套完善。', 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800', 3, 432, 62, '2026-01-12 21:53:03', '2026-03-16 09:54:23', 0);
+INSERT INTO `house` VALUES (5, '江南区温馨两居室 采光极佳', 1, 6, '星光大道旁6号楼902室', 1500.00, 78.00, 2, 1, 1, 9, 16, '朝南', '精装修', 1, '位于江南区核心地段，环境优美空气清新。两居室格局方正，客厅开阔。周边商业配套完善。', 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800', 1, 181, 25, '2026-01-12 21:53:03', '2026-01-12 21:53:03', 0);
+INSERT INTO `house` VALUES (6, '良庆区舒适单间 交通便利', 1, 8, '五象大道50号', 1200.00, 25.00, 1, 0, 1, 5, 8, '朝北', '简单装修', 2, '五象新区核心地段，交通极其便利。单间配独立卫生间，适合单身上班族。', 'https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=800', 1, 108, 13, '2026-01-12 21:53:03', '2026-01-12 21:53:03', 0);
 
 -- ----------------------------
 -- Table structure for house_news
@@ -198,7 +190,6 @@ CREATE TABLE `house_news`  (
   `cover_image` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '封面图片',
   `author_id` bigint NULL DEFAULT NULL COMMENT '作者ID',
   `category` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '分类',
-  `tags` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '标签',
   `view_count` int NULL DEFAULT 0 COMMENT '浏览次数',
   `status` tinyint NULL DEFAULT 1 COMMENT '状态: 0-草稿, 1-已发布',
   `create_time` datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
@@ -266,7 +257,7 @@ CREATE TABLE `house_order_status`  (
   `create_time` datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `idx_order_id`(`order_id` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 4 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '预约看房状态流转表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 5 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '预约看房状态流转表' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of house_order_status
@@ -294,20 +285,42 @@ CREATE TABLE `house_rental`  (
   `contact_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '联系人姓名',
   `contact_phone` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '联系电话',
   `remark` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL COMMENT '备注',
-  `status` int NULL DEFAULT 0 COMMENT '状态: 0-待确认, 1-租赁中, 2-已完成, 3-已取消, 4-已拒绝',
+  `status` tinyint NULL DEFAULT 0 COMMENT '状态: 0-待确认, 1-待支付, 2-租赁中, 3-已完成, 4-已取消, 5-已拒绝',
+  `pay_time` datetime NULL DEFAULT NULL COMMENT '支付时间',
   `create_time` datetime NULL DEFAULT CURRENT_TIMESTAMP,
   `update_time` datetime NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `deleted` int NULL DEFAULT 0,
-  PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 5 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '租赁订单表\r\n' ROW_FORMAT = Dynamic;
+  `deleted` tinyint NULL DEFAULT 0,
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE INDEX `rental_no`(`rental_no` ASC) USING BTREE,
+  INDEX `idx_user_id`(`user_id` ASC) USING BTREE,
+  INDEX `idx_house_id`(`house_id` ASC) USING BTREE,
+  INDEX `idx_landlord_id`(`landlord_id` ASC) USING BTREE,
+  INDEX `idx_status`(`status` ASC) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 5 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '租赁订单表' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of house_rental
 -- ----------------------------
-INSERT INTO `house_rental` VALUES (1, 'R2020532211056533504', 1, 3, 2, '2026-02-08', '2026-02-26', 9800.00, 9800.00, 9800.00, 'liang', '13471521113', 'hhhh', 2, '2026-02-09 00:16:33', '2026-03-16 09:41:14', 0);
-INSERT INTO `house_rental` VALUES (2, 'R2020532921085091840', 4, 3, 2, '2026-02-08', '2026-02-27', 9800.00, 9800.00, 9800.00, 'liang', '13471521113', '', 3, '2026-02-09 00:19:23', '2026-02-09 00:19:30', 0);
-INSERT INTO `house_rental` VALUES (3, 'R2033357648292319232', 4, 6, 1, '2026-03-15', '2026-03-18', 3200.00, 3200.00, 3200.00, '梁兴均', '13471521113', '', 3, '2026-03-16 09:40:16', '2026-03-16 09:45:29', 0);
-INSERT INTO `house_rental` VALUES (4, 'R2033359097617289216', 4, 4, 2, '2026-03-15', '2026-03-17', 12000.00, 12000.00, 12000.00, '张三', '13471521113', '', 1, '2026-03-16 09:46:02', '2026-03-16 09:46:23', 0);
+INSERT INTO `house_rental` VALUES (1, 'R2020532211056533504', 1, 3, 2, '2026-02-08', '2026-02-26', 9800.00, 9800.00, 19600.00, 'liang', '13471521113', 'hhhh', 3, NULL, '2026-02-09 00:16:33', '2026-03-16 09:41:14', 0);
+INSERT INTO `house_rental` VALUES (2, 'R2020532921085091840', 4, 3, 2, '2026-02-08', '2026-02-27', 9800.00, 9800.00, 19600.00, 'liang', '13471521113', '', 4, NULL, '2026-02-09 00:19:23', '2026-02-09 00:19:30', 0);
+INSERT INTO `house_rental` VALUES (3, 'R2033357648292319232', 4, 6, 1, '2026-03-15', '2026-03-18', 3200.00, 3200.00, 6400.00, '梁兴均', '13471521113', '', 4, NULL, '2026-03-16 09:40:16', '2026-03-16 09:45:29', 0);
+INSERT INTO `house_rental` VALUES (4, 'R2033359097617289216', 4, 4, 2, '2026-03-15', '2026-03-17', 12000.00, 12000.00, 24000.00, '张三', '13471521113', '', 2, '2026-03-16 09:46:23', '2026-03-16 09:46:02', '2026-03-16 09:46:23', 0);
+
+-- ----------------------------
+-- Table structure for house_rental_status
+-- ----------------------------
+DROP TABLE IF EXISTS `house_rental_status`;
+CREATE TABLE `house_rental_status`  (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT 'ID',
+  `rental_id` bigint NOT NULL COMMENT '租赁ID',
+  `status` tinyint NOT NULL COMMENT '状态',
+  `operator_id` bigint NULL DEFAULT NULL COMMENT '操作人ID',
+  `operator_type` tinyint NULL DEFAULT NULL COMMENT '操作人类型: 1-用户, 2-房东, 3-管理员',
+  `remark` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '备注',
+  `create_time` datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `idx_rental_id`(`rental_id` ASC) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '租赁状态流转表' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for landlord
@@ -319,7 +332,6 @@ CREATE TABLE `landlord`  (
   `real_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '真实姓名',
   `id_card` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '身份证号',
   `contact` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '联系方式',
-  `address` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '联系地址',
   `id_card_front` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '身份证正面照片',
   `id_card_back` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '身份证背面照片',
   `verify_status` tinyint NULL DEFAULT 0 COMMENT '认证状态: 0-待审核, 1-已认证, 2-认证失败',
@@ -334,9 +346,9 @@ CREATE TABLE `landlord`  (
 -- ----------------------------
 -- Records of landlord
 -- ----------------------------
-INSERT INTO `landlord` VALUES (1, 2, '王大明', '110101199001011234', '13800000001', NULL, NULL, NULL, 1, NULL, '2026-01-12 21:53:03', '2026-01-12 21:53:03', 0);
-INSERT INTO `landlord` VALUES (2, 3, '李小红', '310101199002022345', '13800000002', NULL, NULL, NULL, 1, NULL, '2026-01-12 21:53:03', '2026-01-12 21:53:03', 0);
-INSERT INTO `landlord` VALUES (3, 6, '梁兴均', '480924200211244911', '13471521113', NULL, '/uploads/idcard/2026/04/06/5cdc6302-2860-477b-a1aa-6bac53c074e0.png', '/uploads/idcard/2026/04/06/2f1d5122-5ebf-4daa-99a2-f25bc5ce7d3f.png', 1, '', '2026-04-06 21:27:38', '2026-04-06 21:27:38', 0);
+INSERT INTO `landlord` VALUES (1, 2, '王大明', '110101199001011234', '13800000001', NULL, NULL, 1, NULL, '2026-01-12 21:53:03', '2026-01-12 21:53:03', 0);
+INSERT INTO `landlord` VALUES (2, 3, '李小红', '310101199002022345', '13800000002', NULL, NULL, 1, NULL, '2026-01-12 21:53:03', '2026-01-12 21:53:03', 0);
+INSERT INTO `landlord` VALUES (3, 6, '梁兴均', '480924200211244911', '13471521113', '/uploads/idcard/2026/04/06/5cdc6302-2860-477b-a1aa-6bac53c074e0.png', '/uploads/idcard/2026/04/06/2f1d5122-5ebf-4daa-99a2-f25bc5ce7d3f.png', 1, '', '2026-04-06 21:27:38', '2026-04-06 21:27:38', 0);
 
 -- ----------------------------
 -- Table structure for notice
@@ -434,5 +446,26 @@ CREATE TABLE `user_collect`  (
 -- Records of user_collect
 -- ----------------------------
 INSERT INTO `user_collect` VALUES (3, 1, 6, '2026-03-23 19:27:50');
+
+-- ----------------------------
+-- Foreign Keys
+-- ----------------------------
+ALTER TABLE `house` ADD CONSTRAINT `fk_house_landlord` FOREIGN KEY (`landlord_id`) REFERENCES `landlord` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `house` ADD CONSTRAINT `fk_house_area` FOREIGN KEY (`area_id`) REFERENCES `area` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE `evaluations` ADD CONSTRAINT `fk_evaluations_house` FOREIGN KEY (`house_id`) REFERENCES `house` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `evaluations` ADD CONSTRAINT `fk_evaluations_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `evaluations_upvote` ADD CONSTRAINT `fk_upvote_evaluation` FOREIGN KEY (`evaluation_id`) REFERENCES `evaluations` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `evaluations_upvote` ADD CONSTRAINT `fk_upvote_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `house_order_info` ADD CONSTRAINT `fk_order_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `house_order_info` ADD CONSTRAINT `fk_order_house` FOREIGN KEY (`house_id`) REFERENCES `house` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `house_order_status` ADD CONSTRAINT `fk_order_status_order` FOREIGN KEY (`order_id`) REFERENCES `house_order_info` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `house_rental` ADD CONSTRAINT `fk_rental_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `house_rental` ADD CONSTRAINT `fk_rental_house` FOREIGN KEY (`house_id`) REFERENCES `house` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `house_rental_status` ADD CONSTRAINT `fk_rental_status_rental` FOREIGN KEY (`rental_id`) REFERENCES `house_rental` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `landlord` ADD CONSTRAINT `fk_landlord_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `user_browse_history` ADD CONSTRAINT `fk_browse_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `user_browse_history` ADD CONSTRAINT `fk_browse_house` FOREIGN KEY (`house_id`) REFERENCES `house` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `user_collect` ADD CONSTRAINT `fk_collect_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `user_collect` ADD CONSTRAINT `fk_collect_house` FOREIGN KEY (`house_id`) REFERENCES `house` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 SET FOREIGN_KEY_CHECKS = 1;

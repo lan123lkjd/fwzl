@@ -23,5 +23,8 @@ export const rentalApi = {
     complete: (id) => request.put(`/rental/complete/${id}`),
 
     // 取消租赁
-    cancel: (id) => request.put(`/rental/cancel/${id}`)
+    cancel: (id) => request.put(`/rental/cancel/${id}`),
+
+    // 支付租赁
+    pay: (id) => request.put(`/rental/pay/${id}`)
 }

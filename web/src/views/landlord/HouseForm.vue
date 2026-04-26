@@ -79,7 +79,7 @@ const form = reactive({
 })
 
 const loadAreas = async () => {
-  const res = await commonApi.areaList(1)
+  const res = await commonApi.areaList()
   areaList.value = res.data || []
 }
 

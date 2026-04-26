@@ -135,6 +135,20 @@ public class AdminController {
         return Result.success(orderService.listAll(status, page, size));
     }
 
+    // ========== 租赁管理 ==========
+    @Autowired
+    private HouseRentalService rentalService;
+
+    @GetMapping("/rental/list")
+    @Operation(summary = "租赁列表(管理)")
+    public Result<PageResult<HouseRental>> rentalList(
+            @RequestParam(required = false) Integer status,
+            @RequestParam(required = false) String statusList,
+            @RequestParam(defaultValue = "1") Integer page,
+            @RequestParam(defaultValue = "10") Integer size) {
+        return Result.success(rentalService.listAll(status, statusList, page, size));
+    }
+
     // ========== 资讯管理 ==========
     @GetMapping("/news/list")
     @Operation(summary = "资讯列表(管理)")
@@ -200,11 +214,8 @@ public class AdminController {
     // ========== 地区管理 ==========
     @GetMapping("/area/list")
     @Operation(summary = "地区列表")
-    public Result<List<Area>> areaList(@RequestParam(required = false) Long parentId) {
-        LambdaQueryWrapper<Area> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(Area::getParentId, parentId == null ? 0 : parentId)
-                .orderByAsc(Area::getSort);
-        return Result.success(areaMapper.selectList(wrapper));
+    public Result<List<Area>> areaList() {
+        return Result.success(areaMapper.selectList(null));
     }
 
     @PostMapping("/area")

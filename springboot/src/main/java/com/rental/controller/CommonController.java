@@ -30,17 +30,8 @@ public class CommonController {
 
     @GetMapping("/area/list")
     @Operation(summary = "地区列表")
-    public Result<List<Area>> areaList(@RequestParam(required = false, defaultValue = "0") Long parentId) {
-        return Result.success(areaMapper.selectList(new LambdaQueryWrapper<Area>()
-                .eq(Area::getParentId, parentId)
-                .orderByAsc(Area::getSort)));
-    }
-
-    @GetMapping("/area/tree")
-    @Operation(summary = "地区树")
-    public Result<List<Area>> areaTree() {
-        return Result.success(areaMapper.selectList(new LambdaQueryWrapper<Area>()
-                .orderByAsc(Area::getLevel).orderByAsc(Area::getSort)));
+    public Result<List<Area>> areaList() {
+        return Result.success(areaMapper.selectList(null));
     }
 
     @GetMapping("/community/list")

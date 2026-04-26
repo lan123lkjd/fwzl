@@ -24,8 +24,6 @@ public class Landlord implements Serializable {
 
     private String contact;
 
-    private String address;
-
     private String idCardFront;
 
     private String idCardBack;

@@ -28,8 +28,6 @@ public class HouseNews implements Serializable {
 
     private String category;
 
-    private String tags;
-
     private Integer viewCount;
 
     /**

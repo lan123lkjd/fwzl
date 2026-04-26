@@ -19,6 +19,14 @@
           <el-icon><House /></el-icon>
           <span>房源管理</span>
         </router-link>
+        <router-link to="/admin/order" class="menu-item" :class="{ active: $route.path === '/admin/order' }">
+          <el-icon><Calendar /></el-icon>
+          <span>预约管理</span>
+        </router-link>
+        <router-link to="/admin/rental" class="menu-item" :class="{ active: $route.path === '/admin/rental' }">
+          <el-icon><Tickets /></el-icon>
+          <span>租赁管理</span>
+        </router-link>
         <router-link to="/admin/news" class="menu-item" :class="{ active: $route.path === '/admin/news' }">
           <el-icon><Document /></el-icon>
           <span>资讯管理</span>

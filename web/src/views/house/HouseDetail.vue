@@ -3,9 +3,9 @@
     <el-row :gutter="24">
       <el-col :span="16">
         <div class="gallery card">
-          <el-carousel height="400px" v-if="images.length">
-            <el-carousel-item v-for="(img, idx) in images" :key="idx">
-              <img :src="img" style="width: 100%; height: 100%; object-fit: cover;" />
+          <el-carousel height="400px" v-if="house.coverImage">
+            <el-carousel-item>
+              <img :src="getImageUrl(house.coverImage)" style="width: 100%; height: 100%; object-fit: cover;" />
             </el-carousel-item>
           </el-carousel>
           <el-empty v-else description="暂无图片" />
@@ -131,8 +131,10 @@
     <el-dialog v-model="showRentalDialog" title="申请租赁" width="500px">
       <el-form :model="rentalForm" label-width="100px">
         <el-form-item label="月租金">
-          <el-input-number v-model="rentalForm.monthlyRent" :min="0" :precision="2" style="width: 100%" disabled />
-          <span style="margin-left: 8px; color: #999">元/月</span>
+          <div style="display: flex; align-items: center;">
+            <el-input-number v-model="rentalForm.monthlyRent" :min="0" :precision="2" style="flex: 1" disabled />
+            <span style="margin-left: 8px; color: #999; white-space: nowrap">元/月</span>
+          </div>
         </el-form-item>
         <el-form-item label="起租日期">
           <el-date-picker v-model="rentalForm.startDate" type="date" placeholder="选择起租日期" style="width: 100%" />
@@ -141,8 +143,19 @@
           <el-date-picker v-model="rentalForm.endDate" type="date" placeholder="选择到期日期" style="width: 100%" />
         </el-form-item>
         <el-form-item label="押金">
-          <el-input-number v-model="rentalForm.deposit" :min="0" :precision="2" style="width: 100%" />
-          <span style="margin-left: 8px; color: #999">元</span>
+          <div style="display: flex; align-items: center;">
+            <el-input-number v-model="rentalForm.deposit" :min="0" :precision="2" style="flex: 1" />
+            <span style="margin-left: 8px; color: #999; white-space: nowrap">元（默认1个月租金）</span>
+          </div>
+        </el-form-item>
+        <el-form-item label="费用明细">
+          <div style="line-height: 2; color: #606266; font-size: 14px">
+            <div>租金：¥{{ rentalForm.monthlyRent }}/月 × {{ rentalMonths }}个月 = ¥{{ rentTotal }}</div>
+            <div>押金：¥{{ rentalForm.deposit || 0 }}</div>
+            <div style="font-weight: bold; color: #e6a23c; border-top: 1px solid #eee; padding-top: 4px">
+              合计：¥{{ calculatedTotal }}
+            </div>
+          </div>
         </el-form-item>
         <el-form-item label="联系姓名">
           <el-input v-model="rentalForm.contactName" placeholder="您的姓名" />
@@ -185,10 +198,21 @@ const showRentalDialog = ref(false)
 const orderForm = reactive({ orderTime: '', contactName: '', contactPhone: '', remark: '' })
 const rentalForm = reactive({ monthlyRent: 0, startDate: '', endDate: '', deposit: 0, contactName: '', contactPhone: '', remark: '' })
 
-const images = computed(() => {
-  if (!house.value?.images) return house.value?.coverImage ? [house.value.coverImage] : []
-  try { return JSON.parse(house.value.images) } catch { return [] }
+const rentalMonths = computed(() => {
+  if (!rentalForm.startDate || !rentalForm.endDate) return 0
+  const s = new Date(rentalForm.startDate)
+  const e = new Date(rentalForm.endDate)
+  let months = (e.getFullYear() - s.getFullYear()) * 12 + (e.getMonth() - s.getMonth())
+  return months < 1 ? 1 : months
 })
+const rentTotal = computed(() => (rentalForm.monthlyRent * rentalMonths.value).toFixed(2))
+const calculatedTotal = computed(() => (parseFloat(rentTotal.value) + (rentalForm.deposit || 0)).toFixed(2))
+
+const getImageUrl = (path) => {
+  if (!path) return ''
+  if (path.startsWith('http')) return path
+  return `http://localhost:8080${path}`
+}
 
 const loadDetail = async () => {
   const res = await houseApi.detail(route.params.id)
@@ -314,7 +338,7 @@ const checkRentalStatus = async () => {
     const res = await rentalApi.userList({ page: 1, size: 100 })
     if (res.code === 200) {
       const rentals = res.data.records || []
-      hasRented.value = rentals.some(r => r.houseId == route.params.id && (r.status === 0 || r.status === 1))
+      hasRented.value = rentals.some(r => r.houseId == route.params.id && (r.status === 0 || r.status === 1 || r.status === 2))
     }
   } catch (e) {
     console.log('检查租赁状态失败', e)
@@ -325,6 +349,14 @@ const checkRentalStatus = async () => {
 const submitRental = async () => {
   if (!rentalForm.startDate || !rentalForm.endDate) {
     ElMessage.warning('请选择租赁日期')
+    return
+  }
+  if (new Date(rentalForm.startDate) >= new Date(rentalForm.endDate)) {
+    ElMessage.warning('起租日期必须早于到期日期')
+    return
+  }
+  if (new Date(rentalForm.startDate) < new Date(new Date().toDateString())) {
+    ElMessage.warning('起租日期不能早于今天')
     return
   }
   if (!rentalForm.contactName || !rentalForm.contactPhone) {

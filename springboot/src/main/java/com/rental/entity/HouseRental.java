@@ -43,9 +43,11 @@ public class HouseRental implements Serializable {
     private String remark;
 
     /**
-     * 状态: 0-待确认, 1-租赁中, 2-已完成, 3-已取消, 4-已拒绝
+     * 状态: 0-待确认, 1-待支付, 2-租赁中, 3-已完成, 4-已取消, 5-已拒绝
      */
     private Integer status;
+
+    private LocalDateTime payTime;
 
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createTime;

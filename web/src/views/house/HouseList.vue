@@ -74,7 +74,7 @@ const loadData = async () => {
 }
 
 const loadAreas = async () => {
-  const res = await commonApi.areaList(1)
+  const res = await commonApi.areaList()
   areaList.value = res.data || []
 }
 

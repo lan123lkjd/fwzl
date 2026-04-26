@@ -50,10 +50,6 @@ public class House implements Serializable {
 
     private String description;
 
-    private String facilities;
-
-    private String images;
-
     private String coverImage;
 
     /**

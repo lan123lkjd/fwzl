@@ -33,18 +33,22 @@ public interface HouseRentalService {
      */
     void cancel(Long id, Long userId);
 
+    void pay(Long id, Long userId);
+
     /**
      * 用户租赁列表
      */
-    PageResult<HouseRental> listByUser(Long userId, Integer status, Integer page, Integer size);
+    PageResult<HouseRental> listByUser(Long userId, Integer status, String statusList, Integer page, Integer size);
 
     /**
      * 房东租赁列表
      */
-    PageResult<HouseRental> listByLandlord(Long landlordId, Integer status, Integer page, Integer size);
+    PageResult<HouseRental> listByLandlord(Long landlordId, Integer status, String statusList, Integer page, Integer size);
 
     /**
      * 根据ID获取租赁详情
      */
     HouseRental getById(Long id);
+
+    PageResult<HouseRental> listAll(Integer status, String statusList, Integer page, Integer size);
 }

@@ -1,8 +1,7 @@
 import request from '@/utils/request'
 
 export const commonApi = {
-    areaList: (parentId = 0) => request.get('/area/list', { params: { parentId } }),
-    areaTree: () => request.get('/area/tree'),
+    areaList: () => request.get('/area/list'),
     communityList: (areaId) => request.get('/community/list', { params: { areaId } }),
     communityDetail: (id) => request.get(`/community/${id}`),
     noticeList: (params) => request.get('/notice/list', { params }),

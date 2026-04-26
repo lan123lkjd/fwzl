@@ -19,6 +19,9 @@ export const adminApi = {
     // 预约管理
     orderList: (params) => request.get('/admin/order/list', { params }),
 
+    // 租赁管理
+    rentalList: (params) => request.get('/admin/rental/list', { params }),
+
     // 资讯管理
     newsList: () => request.get('/admin/news/list'),
     publishNews: (data) => request.post('/admin/news', data),
@@ -32,7 +35,7 @@ export const adminApi = {
     deleteNotice: (id) => request.delete(`/admin/notice/${id}`),
 
     // 地区管理
-    areaList: (parentId) => request.get('/admin/area/list', { params: { parentId } }),
+    areaList: () => request.get('/admin/area/list'),
     addArea: (data) => request.post('/admin/area', data),
 
     // 小区管理
