@@ -22,8 +22,6 @@ public class Evaluations implements Serializable {
 
     private String content;
 
-    private Long parentId;
-
     private Integer upvoteCount;
 
     @TableField(fill = FieldFill.INSERT)

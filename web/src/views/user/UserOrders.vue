@@ -11,15 +11,37 @@
           <el-tag :type="getStatusType(row.status)">{{ getStatusText(row.status) }}</el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="操作" width="100">
+      <el-table-column label="服务评分" width="120">
+        <template #default="{ row }">
+          <el-rate v-if="row.rating" :model-value="row.rating" disabled />
+          <span v-else>-</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="操作" width="150">
         <template #default="{ row }">
           <el-button v-if="row.status < 2" size="small" type="danger" @click="handleCancel(row.id)">取消</el-button>
+          <el-button v-if="row.status === 2 && !row.rating" size="small" type="primary" @click="openEvaluate(row)">评价</el-button>
         </template>
       </el-table-column>
     </el-table>
     <div class="pagination-wrapper">
       <el-pagination v-model:current-page="page" :total="total" layout="prev, pager, next" @current-change="loadData" />
     </div>
+
+    <el-dialog v-model="evaluateVisible" title="服务评价" width="400px">
+      <el-form :model="evaluateForm" label-width="80px">
+        <el-form-item label="评分">
+          <el-rate v-model="evaluateForm.rating" show-text :texts="['很差', '较差', '一般', '较好', '很好']" />
+        </el-form-item>
+        <el-form-item label="评价内容">
+          <el-input v-model="evaluateForm.content" type="textarea" :rows="3" placeholder="请输入评价内容（选填）" />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="evaluateVisible = false">取消</el-button>
+        <el-button type="primary" @click="submitEvaluate">提交</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -31,6 +53,8 @@ import { ElMessage } from 'element-plus'
 const list = ref([])
 const page = ref(1)
 const total = ref(0)
+const evaluateVisible = ref(false)
+const evaluateForm = ref({ id: null, rating: 5, content: '' })
 
 const loadData = async () => {
   const res = await orderApi.userList({ page: page.value, size: 10 })
@@ -43,6 +67,22 @@ const getStatusType = (s) => ({ 0: 'warning', 1: 'primary', 2: 'success', 3: 'in
 const handleCancel = async (id) => {
   await orderApi.cancel(id)
   ElMessage.success('已取消')
+  loadData()
+}
+
+const openEvaluate = (row) => {
+  evaluateForm.value = { id: row.id, rating: 5, content: '' }
+  evaluateVisible.value = true
+}
+
+const submitEvaluate = async () => {
+  if (!evaluateForm.value.rating) {
+    ElMessage.warning('请选择评分')
+    return
+  }
+  await orderApi.evaluate(evaluateForm.value.id, evaluateForm.value.rating, evaluateForm.value.content)
+  ElMessage.success('评价成功')
+  evaluateVisible.value = false
   loadData()
 }
 

@@ -41,7 +41,6 @@ public class EvaluationsServiceImpl extends ServiceImpl<EvaluationsMapper, Evalu
         Page<Evaluations> pageParam = new Page<>(page, size);
         LambdaQueryWrapper<Evaluations> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(Evaluations::getHouseId, houseId)
-                .eq(Evaluations::getParentId, 0) // 只查询顶级评论
                 .orderByDesc(Evaluations::getCreateTime);
         Page<Evaluations> result = page(pageParam, wrapper);
 

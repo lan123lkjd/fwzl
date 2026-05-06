@@ -58,6 +58,44 @@
       
       <el-col :span="8">
         <div class="card">
+          <h3 style="margin-bottom: 16px">房东信息</h3>
+          <div v-if="landlordInfo" style="line-height: 2.2">
+            <div style="display: flex; justify-content: space-between">
+              <span style="color: #666">姓名</span>
+              <span style="font-weight: 500">{{ landlordInfo.realName || '-' }}</span>
+            </div>
+            <div style="display: flex; justify-content: space-between">
+              <span style="color: #666">电话</span>
+              <span>{{ landlordInfo.phone || '-' }}</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center">
+              <span style="color: #666">服务评分</span>
+              <div style="display: flex; align-items: center; gap: 8px">
+                <el-rate :model-value="landlordRating.avgRating" disabled size="small" />
+                <span style="color: #e6a23c">{{ landlordRating.avgRating }}分</span>
+                <span style="color: #999; font-size: 12px">({{ landlordRating.ratingCount }}条评价)</span>
+              </div>
+            </div>
+          </div>
+          <el-empty v-else description="暂无房东信息" :image-size="60" />
+        </div>
+        
+        <div class="card" style="margin-top: 24px" v-if="landlordEvaluations.length > 0">
+          <h3 style="margin-bottom: 16px">房东服务评价</h3>
+          <div v-for="item in landlordEvaluations" :key="item.id" style="padding: 12px 0; border-bottom: 1px solid #eee">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px">
+              <div style="display: flex; align-items: center; gap: 8px">
+                <span style="font-weight: 500">{{ item.username }}</span>
+                <el-rate :model-value="item.rating" disabled size="small" />
+              </div>
+              <span style="color: #999; font-size: 12px">{{ formatTime(item.evaluationTime) }}</span>
+            </div>
+            <div style="color: #666; font-size: 14px; line-height: 1.6">{{ item.evaluationContent || '用户未填写评价内容' }}</div>
+            <div style="color: #999; font-size: 12px; margin-top: 4px">房源：{{ item.houseTitle }}</div>
+          </div>
+        </div>
+        
+        <div class="card" style="margin-top: 24px">
           <h3 style="margin-bottom: 16px">预约看房</h3>
           
           <!-- 已预约状态 -->
@@ -182,6 +220,7 @@ import { houseApi } from '@/api/house'
 import { orderApi } from '@/api/order'
 import { rentalApi } from '@/api/rental'
 import { evaluationsApi } from '@/api/evaluations'
+import { landlordApi } from '@/api/landlord'
 import { useUserStore } from '@/store/user'
 import { ElMessage } from 'element-plus'
 
@@ -195,6 +234,9 @@ const isCollected = ref(false)
 const hasBooked = ref(false)
 const hasRented = ref(false)
 const showRentalDialog = ref(false)
+const landlordInfo = ref(null)
+const landlordRating = ref({ avgRating: 0, ratingCount: 0 })
+const landlordEvaluations = ref([])
 const orderForm = reactive({ orderTime: '', contactName: '', contactPhone: '', remark: '' })
 const rentalForm = reactive({ monthlyRent: 0, startDate: '', endDate: '', deposit: 0, contactName: '', contactPhone: '', remark: '' })
 
@@ -217,6 +259,36 @@ const getImageUrl = (path) => {
 const loadDetail = async () => {
   const res = await houseApi.detail(route.params.id)
   if (res.code === 200) house.value = res.data
+}
+
+const loadLandlordRating = async () => {
+  if (!house.value || !house.value.landlordId) return
+  try {
+    const res = await landlordApi.getRating(house.value.landlordId)
+    if (res.code === 200) landlordRating.value = res.data
+  } catch (e) {
+    console.log('加载房东评分失败', e)
+  }
+}
+
+const loadLandlordInfo = async () => {
+  if (!house.value || !house.value.landlordId) return
+  try {
+    const res = await landlordApi.detail(house.value.landlordId)
+    if (res.code === 200) landlordInfo.value = res.data
+  } catch (e) {
+    console.log('加载房东信息失败', e)
+  }
+}
+
+const loadLandlordEvaluations = async () => {
+  if (!house.value || !house.value.landlordId) return
+  try {
+    const res = await landlordApi.getEvaluations(house.value.landlordId, 5)
+    if (res.code === 200) landlordEvaluations.value = res.data || []
+  } catch (e) {
+    console.log('加载房东评价失败', e)
+  }
 }
 
 const checkCollectStatus = async () => {
@@ -328,6 +400,9 @@ watch(() => house.value, (newHouse) => {
   if (newHouse) {
     rentalForm.monthlyRent = newHouse.price || 0
     rentalForm.deposit = newHouse.price || 0
+    loadLandlordRating()
+    loadLandlordInfo()
+    loadLandlordEvaluations()
   }
 })
 

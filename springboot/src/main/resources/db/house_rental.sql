@@ -48,26 +48,24 @@ CREATE TABLE `evaluations`  (
   `house_id` bigint NOT NULL COMMENT '房源ID',
   `user_id` bigint NOT NULL COMMENT '用户ID',
   `content` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '评论内容',
-  `parent_id` bigint NULL DEFAULT 0 COMMENT '父评论ID(0表示顶级评论)',
   `upvote_count` int NULL DEFAULT 0 COMMENT '点赞数',
   `create_time` datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_time` datetime NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   `deleted` tinyint NULL DEFAULT 0 COMMENT '逻辑删除',
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `idx_house_id`(`house_id` ASC) USING BTREE,
-  INDEX `idx_user_id`(`user_id` ASC) USING BTREE,
-  INDEX `idx_parent_id`(`parent_id` ASC) USING BTREE
+  INDEX `idx_user_id`(`user_id` ASC) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 7 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '评论表' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of evaluations
 -- ----------------------------
-INSERT INTO `evaluations` VALUES (1, 1, 4, '房子很不错，装修风格我很喜欢，房东人也很好说话。', 0, 16, '2026-01-12 21:53:03', '2026-01-12 21:53:03', 0);
-INSERT INTO `evaluations` VALUES (2, 1, 5, '位置很方便，出门就是地铁站，周边吃饭购物都很方便。', 0, 9, '2026-01-12 21:53:03', '2026-01-12 21:53:03', 0);
-INSERT INTO `evaluations` VALUES (3, 2, 4, '一居室很温馨，适合我们小两口住，就是面积稍微小了点。', 0, 5, '2026-01-12 21:53:03', '2026-01-12 21:53:03', 0);
-INSERT INTO `evaluations` VALUES (4, 3, 5, '豪华三居室名不虚传，家具家电都是品牌的，值这个价！', 0, 22, '2026-01-12 21:53:03', '2026-01-12 21:53:03', 0);
-INSERT INTO `evaluations` VALUES (5, 4, 4, '这的房子就是贵，但是真的很方便，适合金融行业的朋友。', 0, 18, '2026-01-12 21:53:03', '2026-01-12 21:53:03', 0);
-INSERT INTO `evaluations` VALUES (6, 4, 1, 'dada', 0, 2, '2026-02-02 23:49:36', '2026-02-08 22:36:33', 1);
+INSERT INTO `evaluations` VALUES (1, 1, 4, '房子很不错，装修风格我很喜欢，房东人也很好说话。', 16, '2026-01-12 21:53:03', '2026-01-12 21:53:03', 0);
+INSERT INTO `evaluations` VALUES (2, 1, 5, '位置很方便，出门就是地铁站，周边吃饭购物都很方便。', 9, '2026-01-12 21:53:03', '2026-01-12 21:53:03', 0);
+INSERT INTO `evaluations` VALUES (3, 2, 4, '一居室很温馨，适合我们小两口住，就是面积稍微小了点。', 5, '2026-01-12 21:53:03', '2026-01-12 21:53:03', 0);
+INSERT INTO `evaluations` VALUES (4, 3, 5, '豪华三居室名不虚传，家具家电都是品牌的，值这个价！', 22, '2026-01-12 21:53:03', '2026-01-12 21:53:03', 0);
+INSERT INTO `evaluations` VALUES (5, 4, 4, '这的房子就是贵，但是真的很方便，适合金融行业的朋友。', 18, '2026-01-12 21:53:03', '2026-01-12 21:53:03', 0);
+INSERT INTO `evaluations` VALUES (6, 4, 1, 'dada', 2, '2026-02-02 23:49:36', '2026-02-08 22:36:33', 1);
 
 -- ----------------------------
 -- Table structure for evaluations_upvote
@@ -224,6 +222,9 @@ CREATE TABLE `house_order_info`  (
   `contact_phone` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '联系电话',
   `remark` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '备注',
   `status` tinyint NULL DEFAULT 0 COMMENT '状态: 0-待确认, 1-已确认, 2-已完成, 3-已取消, 4-已拒绝',
+  `rating` tinyint NULL DEFAULT NULL COMMENT '服务评分: 1-5星',
+  `evaluation_content` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '评价内容',
+  `evaluation_time` datetime NULL DEFAULT NULL COMMENT '评价时间',
   `create_time` datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_time` datetime NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   `deleted` tinyint NULL DEFAULT 0 COMMENT '逻辑删除',

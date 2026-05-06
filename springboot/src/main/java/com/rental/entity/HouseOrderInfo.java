@@ -37,6 +37,12 @@ public class HouseOrderInfo implements Serializable {
      */
     private Integer status;
 
+    private Integer rating;
+
+    private String evaluationContent;
+
+    private LocalDateTime evaluationTime;
+
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createTime;
 

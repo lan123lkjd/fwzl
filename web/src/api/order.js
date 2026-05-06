@@ -8,5 +8,6 @@ export const orderApi = {
     cancel: (id) => request.put(`/order/cancel/${id}`),
     userList: (params) => request.get('/order/user', { params }),
     landlordList: (params) => request.get('/order/landlord', { params }),
-    detail: (id) => request.get(`/order/detail/${id}`)
+    detail: (id) => request.get(`/order/detail/${id}`),
+    evaluate: (id, rating, content) => request.post(`/order/evaluate/${id}`, null, { params: { rating, content } })
 }

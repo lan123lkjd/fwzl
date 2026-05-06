@@ -111,4 +111,19 @@ public class HouseOrderController {
     public Result<HouseOrderInfo> detail(@PathVariable Long id) {
         return Result.success(orderService.getById(id));
     }
+
+    @PostMapping("/evaluate/{id}")
+    @Operation(summary = "评价预约服务")
+    public Result<Void> evaluate(
+            @PathVariable Long id,
+            @RequestAttribute("userId") Long userId,
+            @RequestParam Integer rating,
+            @RequestParam(required = false) String content) {
+        try {
+            orderService.evaluate(id, userId, rating, content);
+            return Result.success();
+        } catch (Exception e) {
+            return Result.error(e.getMessage());
+        }
+    }
 }

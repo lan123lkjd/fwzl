@@ -48,4 +48,9 @@ public interface HouseOrderService extends IService<HouseOrderInfo> {
      * 管理员查询所有预约
      */
     PageResult<HouseOrderInfo> listAll(Integer status, Integer page, Integer size);
+
+    /**
+     * 评价预约服务
+     */
+    boolean evaluate(Long id, Long userId, Integer rating, String content);
 }

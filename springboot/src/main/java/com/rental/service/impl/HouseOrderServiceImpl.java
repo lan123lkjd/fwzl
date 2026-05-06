@@ -171,4 +171,24 @@ public class HouseOrderServiceImpl extends ServiceImpl<HouseOrderInfoMapper, Hou
         statusLog.setRemark(remark);
         statusMapper.insert(statusLog);
     }
+
+    @Override
+    @Transactional
+    public boolean evaluate(Long id, Long userId, Integer rating, String content) {
+        HouseOrderInfo order = getById(id);
+        if (order == null || !order.getUserId().equals(userId)) {
+            throw new RuntimeException("无权操作");
+        }
+        if (order.getStatus() != 2) {
+            throw new RuntimeException("只有已完成的预约才能评价");
+        }
+        if (order.getRating() != null) {
+            throw new RuntimeException("已评价过，不能重复评价");
+        }
+
+        order.setRating(rating);
+        order.setEvaluationContent(content);
+        order.setEvaluationTime(java.time.LocalDateTime.now());
+        return updateById(order);
+    }
 }
