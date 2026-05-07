@@ -34,6 +34,28 @@
     
     <section class="container section">
       <div class="section-header">
+        <h2>热门房源</h2>
+        <router-link to="/house">查看更多 →</router-link>
+      </div>
+      <div class="house-grid">
+        <div v-for="house in hotList" :key="house.id" class="house-card" @click="goDetail(house.id)">
+          <img :src="house.coverImage || '/default-house.jpg'" class="cover" alt="">
+          <div class="info">
+            <div class="title">{{ house.title }}</div>
+            <div class="address">{{ house.address }}</div>
+            <div class="meta">
+              <div class="price">¥{{ house.price }}<span>/月</span></div>
+              <div class="tags">
+                <el-tag size="small">{{ house.rooms }}室{{ house.halls }}厅</el-tag>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    <section class="container section">
+      <div class="section-header">
         <h2>智能推荐</h2>
         <router-link to="/house">查看更多 →</router-link>
       </div>
@@ -48,28 +70,6 @@
               <div class="tags">
                 <el-tag size="small">{{ house.rooms }}室{{ house.halls }}厅</el-tag>
                 <el-tag size="small" type="info">{{ house.area }}㎡</el-tag>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-    
-    <section class="container section">
-      <div class="section-header">
-        <h2>热门房源</h2>
-        <router-link to="/house">查看更多 →</router-link>
-      </div>
-      <div class="house-grid">
-        <div v-for="house in hotList" :key="house.id" class="house-card" @click="goDetail(house.id)">
-          <img :src="house.coverImage || '/default-house.jpg'" class="cover" alt="">
-          <div class="info">
-            <div class="title">{{ house.title }}</div>
-            <div class="address">{{ house.address }}</div>
-            <div class="meta">
-              <div class="price">¥{{ house.price }}<span>/月</span></div>
-              <div class="tags">
-                <el-tag size="small">{{ house.rooms }}室{{ house.halls }}厅</el-tag>
               </div>
             </div>
           </div>

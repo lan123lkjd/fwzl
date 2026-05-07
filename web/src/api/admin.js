@@ -8,7 +8,7 @@ export const adminApi = {
     updateUser: (id, data) => request.put(`/admin/user/${id}`, data),
 
     // 房源管理
-    houseList: (status) => request.get('/admin/house/list', { params: { status } }),
+    houseList: (params) => request.get('/admin/house/list', { params }),
     auditHouse: (id, status, remark) => request.put(`/admin/house/audit/${id}`, null, { params: { status, remark } }),
     deleteHouse: (id) => request.delete(`/admin/house/${id}`),
 
@@ -23,13 +23,13 @@ export const adminApi = {
     rentalList: (params) => request.get('/admin/rental/list', { params }),
 
     // 资讯管理
-    newsList: () => request.get('/admin/news/list'),
+    newsList: (params) => request.get('/admin/news/list', { params }),
     publishNews: (data) => request.post('/admin/news', data),
     updateNews: (id, data) => request.put(`/admin/news/${id}`, data),
     deleteNews: (id) => request.delete(`/admin/news/${id}`),
 
     // 公告管理
-    noticeList: () => request.get('/admin/notice/list'),
+    noticeList: (params) => request.get('/admin/notice/list', { params }),
     publishNotice: (data) => request.post('/admin/notice', data),
     updateNotice: (id, data) => request.put(`/admin/notice/${id}`, data),
     deleteNotice: (id) => request.delete(`/admin/notice/${id}`),

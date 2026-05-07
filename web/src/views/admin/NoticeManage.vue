@@ -23,6 +23,18 @@
       </el-table-column>
     </el-table>
     
+    <div class="pagination-wrapper">
+      <el-pagination
+        v-model:current-page="page"
+        v-model:page-size="size"
+        :page-sizes="[10, 20, 50, 100]"
+        :total="total"
+        layout="total, sizes, prev, pager, next, jumper"
+        @size-change="loadData"
+        @current-change="loadData"
+      />
+    </div>
+    
     <el-dialog v-model="showForm" :title="editId ? '编辑公告' : '发布公告'" width="600px">
       <el-form :model="form" label-width="80px">
         <el-form-item label="标题"><el-input v-model="form.title" /></el-form-item>
@@ -50,9 +62,18 @@ import { ElMessage } from 'element-plus'
 const list = ref([])
 const showForm = ref(false)
 const editId = ref(null)
+const page = ref(1)
+const size = ref(10)
+const total = ref(0)
 const form = reactive({ title: '', type: 1, top: 0, content: '', status: 1 })
 
-const loadData = async () => { const res = await adminApi.noticeList(); if (res.code === 200) list.value = res.data || [] }
+const loadData = async () => { 
+  const res = await adminApi.noticeList({ page: page.value, size: size.value })
+  if (res.code === 200) {
+    list.value = res.data.records || res.data || []
+    total.value = res.data.total || 0
+  }
+}
 const handleEdit = (row) => { editId.value = row.id; Object.assign(form, row); showForm.value = true }
 const handleDelete = async (id) => { await adminApi.deleteNotice(id); ElMessage.success('删除成功'); loadData() }
 const handleSubmit = async () => {

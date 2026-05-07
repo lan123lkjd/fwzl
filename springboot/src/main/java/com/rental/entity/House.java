@@ -69,4 +69,16 @@ public class House implements Serializable {
 
     @TableLogic
     private Integer deleted;
+
+    @TableField(exist = false)
+    private String landlordName;
+
+    @TableField(exist = false)
+    private String landlordContact;
+
+    @TableField(exist = false)
+    private String landlordAvatar;
+
+    @TableField(exist = false)
+    private String areaName;
 }

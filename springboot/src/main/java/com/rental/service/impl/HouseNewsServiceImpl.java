@@ -19,7 +19,6 @@ public class HouseNewsServiceImpl extends ServiceImpl<HouseNewsMapper, HouseNews
     public PageResult<HouseNews> listPage(Integer page, Integer size, String category, String keyword) {
         Page<HouseNews> pageParam = new Page<>(page, size);
         LambdaQueryWrapper<HouseNews> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(HouseNews::getStatus, 1);
         if (StringUtils.hasText(category)) {
             wrapper.eq(HouseNews::getCategory, category);
         }

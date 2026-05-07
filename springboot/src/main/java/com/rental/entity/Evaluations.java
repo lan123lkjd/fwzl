@@ -32,4 +32,10 @@ public class Evaluations implements Serializable {
 
     @TableLogic
     private Integer deleted;
+
+    @TableField(exist = false)
+    private String username;
+
+    @TableField(exist = false)
+    private String houseTitle;
 }

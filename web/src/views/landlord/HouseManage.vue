@@ -24,7 +24,15 @@
       </el-table-column>
     </el-table>
     <div class="pagination-wrapper">
-      <el-pagination v-model:current-page="page" :total="total" layout="prev, pager, next" @current-change="loadData" />
+      <el-pagination
+        v-model:current-page="page"
+        v-model:page-size="size"
+        :page-sizes="[10, 20, 50, 100]"
+        :total="total"
+        layout="total, sizes, prev, pager, next, jumper"
+        @size-change="loadData"
+        @current-change="loadData"
+      />
     </div>
   </div>
 </template>
@@ -36,10 +44,11 @@ import { ElMessage } from 'element-plus'
 
 const list = ref([])
 const page = ref(1)
+const size = ref(10)
 const total = ref(0)
 
 const loadData = async () => {
-  const res = await houseApi.landlordList({ page: page.value, size: 10 })
+  const res = await houseApi.landlordList({ page: page.value, size: size.value })
   if (res.code === 200) { list.value = res.data.records || []; total.value = res.data.total || 0 }
 }
 

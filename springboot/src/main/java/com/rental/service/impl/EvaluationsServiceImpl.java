@@ -39,11 +39,7 @@ public class EvaluationsServiceImpl extends ServiceImpl<EvaluationsMapper, Evalu
     @Override
     public PageResult<Evaluations> listByHouse(Long houseId, Integer page, Integer size) {
         Page<Evaluations> pageParam = new Page<>(page, size);
-        LambdaQueryWrapper<Evaluations> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(Evaluations::getHouseId, houseId)
-                .orderByDesc(Evaluations::getCreateTime);
-        Page<Evaluations> result = page(pageParam, wrapper);
-
+        Page<Evaluations> result = baseMapper.selectEvaluationsWithDetails(pageParam, houseId);
         return new PageResult<>(result.getTotal(), result.getPages(),
                 result.getCurrent(), result.getSize(), result.getRecords());
     }

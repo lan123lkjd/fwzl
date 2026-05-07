@@ -4,10 +4,16 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.rental.common.PageResult;
+import com.rental.entity.Area;
 import com.rental.entity.House;
+import com.rental.entity.Landlord;
+import com.rental.entity.User;
+import com.rental.mapper.AreaMapper;
 import com.rental.mapper.HouseMapper;
+import com.rental.mapper.LandlordMapper;
 import com.rental.mapper.UserBrowseHistoryMapper;
 import com.rental.mapper.UserCollectMapper;
+import com.rental.mapper.UserMapper;
 import com.rental.service.HouseService;
 import com.rental.service.algorithm.CollaborativeFilteringService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +37,15 @@ public class HouseServiceImpl extends ServiceImpl<HouseMapper, House> implements
 
     @Autowired
     private CollaborativeFilteringService cfService;
+
+    @Autowired
+    private LandlordMapper landlordMapper;
+
+    @Autowired
+    private UserMapper userMapper;
+
+    @Autowired
+    private AreaMapper areaMapper;
 
     @Override
     public PageResult<House> listPage(Integer page, Integer size, Long areaId,
@@ -67,12 +82,41 @@ public class HouseServiceImpl extends ServiceImpl<HouseMapper, House> implements
 
     @Override
     public House getDetail(Long id) {
-        return getById(id);
+        House house = getById(id);
+        if (house != null) {
+            if (house.getLandlordId() != null) {
+                Landlord landlord = landlordMapper.selectById(house.getLandlordId());
+                if (landlord != null) {
+                    house.setLandlordName(landlord.getRealName());
+                    house.setLandlordContact(landlord.getContact());
+                    User user = userMapper.selectById(landlord.getUserId());
+                    if (user != null) {
+                        house.setLandlordAvatar(user.getAvatar());
+                    }
+                }
+            }
+            if (house.getAreaId() != null) {
+                Area area = areaMapper.selectById(house.getAreaId());
+                if (area != null) {
+                    house.setAreaName(area.getName());
+                }
+            }
+        }
+        return house;
     }
 
     @Override
     public boolean publish(House house) {
-        house.setStatus(0); // 待审核
+        Landlord landlord = landlordMapper.selectOne(
+                new LambdaQueryWrapper<Landlord>()
+                        .eq(Landlord::getUserId, house.getLandlordId()));
+        
+        if (landlord == null) {
+            throw new RuntimeException("您还不是房东，请先申请成为房东");
+        }
+        
+        house.setLandlordId(landlord.getId());
+        house.setStatus(0);
         house.setViewCount(0);
         house.setCollectCount(0);
         return save(house);
@@ -113,9 +157,17 @@ public class HouseServiceImpl extends ServiceImpl<HouseMapper, House> implements
 
     @Override
     public PageResult<House> listByLandlord(Long landlordId, Integer page, Integer size) {
+        Landlord landlord = landlordMapper.selectOne(
+                new LambdaQueryWrapper<Landlord>()
+                        .eq(Landlord::getUserId, landlordId));
+        
+        if (landlord == null) {
+            return new PageResult<>(0L, 0L, (long) page, (long) size, List.of());
+        }
+        
         Page<House> pageParam = new Page<>(page, size);
         LambdaQueryWrapper<House> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(House::getLandlordId, landlordId)
+        wrapper.eq(House::getLandlordId, landlord.getId())
                 .orderByDesc(House::getCreateTime);
         Page<House> result = page(pageParam, wrapper);
 
@@ -203,5 +255,18 @@ public class HouseServiceImpl extends ServiceImpl<HouseMapper, House> implements
     public void clearBrowseHistory(Long userId) {
         browseHistoryMapper.delete(new LambdaQueryWrapper<com.rental.entity.UserBrowseHistory>()
                 .eq(com.rental.entity.UserBrowseHistory::getUserId, userId));
+    }
+
+    @Override
+    public PageResult<House> listAll(Integer page, Integer size, Integer status) {
+        Page<House> pageParam = new Page<>(page, size);
+        LambdaQueryWrapper<House> wrapper = new LambdaQueryWrapper<>();
+        if (status != null) {
+            wrapper.eq(House::getStatus, status);
+        }
+        wrapper.orderByDesc(House::getCreateTime);
+        Page<House> result = page(pageParam, wrapper);
+        return new PageResult<>(result.getTotal(), result.getPages(),
+                result.getCurrent(), result.getSize(), result.getRecords());
     }
 }

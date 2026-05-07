@@ -7,8 +7,10 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.rental.common.PageResult;
 import com.rental.entity.HouseOrderInfo;
 import com.rental.entity.HouseOrderStatus;
+import com.rental.entity.Landlord;
 import com.rental.mapper.HouseOrderInfoMapper;
 import com.rental.mapper.HouseOrderStatusMapper;
+import com.rental.mapper.LandlordMapper;
 import com.rental.service.HouseOrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,6 +25,9 @@ public class HouseOrderServiceImpl extends ServiceImpl<HouseOrderInfoMapper, Hou
 
     @Autowired
     private HouseOrderStatusMapper statusMapper;
+
+    @Autowired
+    private LandlordMapper landlordMapper;
 
     @Override
     @Transactional
@@ -41,8 +46,16 @@ public class HouseOrderServiceImpl extends ServiceImpl<HouseOrderInfoMapper, Hou
     @Override
     @Transactional
     public boolean confirm(Long id, Long landlordId) {
+        Landlord landlord = landlordMapper.selectOne(
+                new LambdaQueryWrapper<Landlord>()
+                        .eq(Landlord::getUserId, landlordId));
+        
+        if (landlord == null) {
+            throw new RuntimeException("您还不是房东");
+        }
+        
         HouseOrderInfo order = getById(id);
-        if (order == null || !order.getLandlordId().equals(landlordId)) {
+        if (order == null || !order.getLandlordId().equals(landlord.getId())) {
             throw new RuntimeException("无权操作");
         }
         if (order.getStatus() != 0) {
@@ -61,8 +74,16 @@ public class HouseOrderServiceImpl extends ServiceImpl<HouseOrderInfoMapper, Hou
     @Override
     @Transactional
     public boolean reject(Long id, Long landlordId, String remark) {
+        Landlord landlord = landlordMapper.selectOne(
+                new LambdaQueryWrapper<Landlord>()
+                        .eq(Landlord::getUserId, landlordId));
+        
+        if (landlord == null) {
+            throw new RuntimeException("您还不是房东");
+        }
+        
         HouseOrderInfo order = getById(id);
-        if (order == null || !order.getLandlordId().equals(landlordId)) {
+        if (order == null || !order.getLandlordId().equals(landlord.getId())) {
             throw new RuntimeException("无权操作");
         }
         if (order.getStatus() != 0) {
@@ -121,29 +142,23 @@ public class HouseOrderServiceImpl extends ServiceImpl<HouseOrderInfoMapper, Hou
     @Override
     public PageResult<HouseOrderInfo> listByUser(Long userId, Integer status, Integer page, Integer size) {
         Page<HouseOrderInfo> pageParam = new Page<>(page, size);
-        LambdaQueryWrapper<HouseOrderInfo> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(HouseOrderInfo::getUserId, userId);
-        if (status != null) {
-            wrapper.eq(HouseOrderInfo::getStatus, status);
-        }
-        wrapper.orderByDesc(HouseOrderInfo::getCreateTime);
-        Page<HouseOrderInfo> result = page(pageParam, wrapper);
-
+        Page<HouseOrderInfo> result = baseMapper.selectOrderWithDetails(pageParam, userId, null, status);
         return new PageResult<>(result.getTotal(), result.getPages(),
                 result.getCurrent(), result.getSize(), result.getRecords());
     }
 
     @Override
     public PageResult<HouseOrderInfo> listByLandlord(Long landlordId, Integer status, Integer page, Integer size) {
-        Page<HouseOrderInfo> pageParam = new Page<>(page, size);
-        LambdaQueryWrapper<HouseOrderInfo> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(HouseOrderInfo::getLandlordId, landlordId);
-        if (status != null) {
-            wrapper.eq(HouseOrderInfo::getStatus, status);
+        Landlord landlord = landlordMapper.selectOne(
+                new LambdaQueryWrapper<Landlord>()
+                        .eq(Landlord::getUserId, landlordId));
+        
+        if (landlord == null) {
+            return new PageResult<>(0L, 0L, (long) page, (long) size, java.util.List.of());
         }
-        wrapper.orderByDesc(HouseOrderInfo::getCreateTime);
-        Page<HouseOrderInfo> result = page(pageParam, wrapper);
-
+        
+        Page<HouseOrderInfo> pageParam = new Page<>(page, size);
+        Page<HouseOrderInfo> result = baseMapper.selectOrderWithDetails(pageParam, null, landlord.getId(), status);
         return new PageResult<>(result.getTotal(), result.getPages(),
                 result.getCurrent(), result.getSize(), result.getRecords());
     }
@@ -151,13 +166,7 @@ public class HouseOrderServiceImpl extends ServiceImpl<HouseOrderInfoMapper, Hou
     @Override
     public PageResult<HouseOrderInfo> listAll(Integer status, Integer page, Integer size) {
         Page<HouseOrderInfo> pageParam = new Page<>(page, size);
-        LambdaQueryWrapper<HouseOrderInfo> wrapper = new LambdaQueryWrapper<>();
-        if (status != null) {
-            wrapper.eq(HouseOrderInfo::getStatus, status);
-        }
-        wrapper.orderByDesc(HouseOrderInfo::getCreateTime);
-        Page<HouseOrderInfo> result = page(pageParam, wrapper);
-
+        Page<HouseOrderInfo> result = baseMapper.selectOrderWithDetails(pageParam, null, null, status);
         return new PageResult<>(result.getTotal(), result.getPages(),
                 result.getCurrent(), result.getSize(), result.getRecords());
     }

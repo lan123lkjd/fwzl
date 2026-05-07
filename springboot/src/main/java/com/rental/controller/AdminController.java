@@ -78,13 +78,11 @@ public class AdminController {
     // ========== 房源管理 ==========
     @GetMapping("/house/list")
     @Operation(summary = "房源列表(管理)")
-    public Result<List<House>> houseList(@RequestParam(required = false) Integer status) {
-        LambdaQueryWrapper<House> wrapper = new LambdaQueryWrapper<>();
-        if (status != null) {
-            wrapper.eq(House::getStatus, status);
-        }
-        wrapper.orderByDesc(House::getCreateTime);
-        return Result.success(houseService.list(wrapper));
+    public Result<PageResult<House>> houseList(
+            @RequestParam(defaultValue = "1") Integer page,
+            @RequestParam(defaultValue = "10") Integer size,
+            @RequestParam(required = false) Integer status) {
+        return Result.success(houseService.listAll(page, size, status));
     }
 
     @PutMapping("/house/audit/{id}")
@@ -152,9 +150,10 @@ public class AdminController {
     // ========== 资讯管理 ==========
     @GetMapping("/news/list")
     @Operation(summary = "资讯列表(管理)")
-    public Result<List<HouseNews>> newsList() {
-        return Result.success(newsService.list(new LambdaQueryWrapper<HouseNews>()
-                .orderByDesc(HouseNews::getCreateTime)));
+    public Result<PageResult<HouseNews>> newsList(
+            @RequestParam(defaultValue = "1") Integer page,
+            @RequestParam(defaultValue = "10") Integer size) {
+        return Result.success(newsService.listPage(page, size, null, null));
     }
 
     @PostMapping("/news")
@@ -183,10 +182,10 @@ public class AdminController {
     // ========== 公告管理 ==========
     @GetMapping("/notice/list")
     @Operation(summary = "公告列表(管理)")
-    public Result<List<Notice>> noticeList() {
-        return Result.success(noticeService.list(new LambdaQueryWrapper<Notice>()
-                .orderByDesc(Notice::getTop)
-                .orderByDesc(Notice::getCreateTime)));
+    public Result<PageResult<Notice>> noticeList(
+            @RequestParam(defaultValue = "1") Integer page,
+            @RequestParam(defaultValue = "10") Integer size) {
+        return Result.success(noticeService.listPage(page, size, null));
     }
 
     @PostMapping("/notice")

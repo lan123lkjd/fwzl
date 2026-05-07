@@ -53,7 +53,15 @@
     </el-table>
     
     <div class="pagination-wrapper">
-      <el-pagination v-model:current-page="page" :total="total" layout="prev, pager, next" @current-change="loadData" />
+      <el-pagination
+        v-model:current-page="page"
+        v-model:page-size="size"
+        :page-sizes="[10, 20, 50, 100]"
+        :total="total"
+        layout="total, sizes, prev, pager, next, jumper"
+        @size-change="loadData"
+        @current-change="loadData"
+      />
     </div>
 
     <el-dialog v-model="editDialogVisible" title="编辑用户" width="500px">
@@ -107,12 +115,13 @@ import { ElMessage } from 'element-plus'
 const list = ref([])
 const keyword = ref('')
 const page = ref(1)
+const size = ref(10)
 const total = ref(0)
 const editDialogVisible = ref(false)
 const editForm = reactive({ id: null, username: '', nickname: '', phone: '', email: '', avatar: '', role: 1 })
 
 const loadData = async () => {
-  const res = await adminApi.userList({ page: page.value, size: 10, keyword: keyword.value })
+  const res = await adminApi.userList({ page: page.value, size: size.value, keyword: keyword.value })
   if (res.code === 200) {
     list.value = res.data.records || []
     total.value = res.data.total || 0

@@ -38,7 +38,15 @@
     </el-table>
     
     <div class="pagination-wrapper">
-      <el-pagination v-model:current-page="page" :total="total" layout="prev, pager, next" @current-change="loadData" />
+      <el-pagination
+        v-model:current-page="page"
+        v-model:page-size="size"
+        :page-sizes="[10, 20, 50, 100]"
+        :total="total"
+        layout="total, sizes, prev, pager, next, jumper"
+        @size-change="loadData"
+        @current-change="loadData"
+      />
     </div>
 
     <el-dialog v-model="dialogVisible" title="房东认证详情" width="600px">
@@ -67,12 +75,13 @@ import { ElMessage } from 'element-plus'
 const list = ref([])
 const status = ref(null)
 const page = ref(1)
+const size = ref(10)
 const total = ref(0)
 const dialogVisible = ref(false)
 const currentRow = ref({})
 
 const loadData = async () => {
-  const res = await adminApi.landlordList({ page: page.value, size: 10, status: status.value })
+  const res = await adminApi.landlordList({ page: page.value, size: size.value, status: status.value })
   if (res.code === 200) {
     list.value = res.data.records || []
     total.value = res.data.total || 0

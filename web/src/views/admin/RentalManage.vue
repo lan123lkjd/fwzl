@@ -40,7 +40,15 @@
     </el-table>
 
     <div class="pagination-wrapper">
-      <el-pagination v-model:current-page="page" :total="total" layout="prev, pager, next" @current-change="loadData" />
+      <el-pagination
+        v-model:current-page="page"
+        v-model:page-size="size"
+        :page-sizes="[10, 20, 50, 100]"
+        :total="total"
+        layout="total, sizes, prev, pager, next, jumper"
+        @size-change="loadData"
+        @current-change="loadData"
+      />
     </div>
   </div>
 </template>
@@ -51,11 +59,12 @@ import { adminApi } from '@/api/admin'
 
 const list = ref([])
 const page = ref(1)
+const size = ref(10)
 const total = ref(0)
 const activeTab = ref('all')
 
 const loadData = async () => {
-  const params = { page: page.value, size: 10 }
+  const params = { page: page.value, size: size.value }
   if (activeTab.value !== 'all') {
     if (activeTab.value === 'cancelled') {
       params.statusList = '4,5'

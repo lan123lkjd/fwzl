@@ -18,7 +18,6 @@ public class NoticeServiceImpl extends ServiceImpl<NoticeMapper, Notice> impleme
     public PageResult<Notice> listPage(Integer page, Integer size, Integer type) {
         Page<Notice> pageParam = new Page<>(page, size);
         LambdaQueryWrapper<Notice> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(Notice::getStatus, 1);
         if (type != null) {
             wrapper.eq(Notice::getType, type);
         }

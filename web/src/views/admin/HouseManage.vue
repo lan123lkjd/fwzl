@@ -42,6 +42,18 @@
         </template>
       </el-table-column>
     </el-table>
+    
+    <div class="pagination-wrapper">
+      <el-pagination
+        v-model:current-page="page"
+        v-model:page-size="size"
+        :page-sizes="[10, 20, 50, 100]"
+        :total="total"
+        layout="total, sizes, prev, pager, next, jumper"
+        @size-change="loadData"
+        @current-change="loadData"
+      />
+    </div>
   </div>
 </template>
 
@@ -52,10 +64,16 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 
 const list = ref([])
 const status = ref(null)
+const page = ref(1)
+const size = ref(10)
+const total = ref(0)
 
 const loadData = async () => {
-  const res = await adminApi.houseList(status.value)
-  if (res.code === 200) list.value = res.data || []
+  const res = await adminApi.houseList({ page: page.value, size: size.value, status: status.value })
+  if (res.code === 200) {
+    list.value = res.data.records || res.data || []
+    total.value = res.data.total || 0
+  }
 }
 
 const getStatusText = (s) => ({ 0: '待审核', 1: '已上架', 2: '已下架', 3: '已出租' }[s] || '-')

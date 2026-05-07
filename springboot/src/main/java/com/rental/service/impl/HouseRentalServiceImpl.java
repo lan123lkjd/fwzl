@@ -7,9 +7,11 @@ import com.rental.common.PageResult;
 import com.rental.entity.House;
 import com.rental.entity.HouseRental;
 import com.rental.entity.HouseRentalStatus;
+import com.rental.entity.Landlord;
 import com.rental.mapper.HouseMapper;
 import com.rental.mapper.HouseRentalMapper;
 import com.rental.mapper.HouseRentalStatusMapper;
+import com.rental.mapper.LandlordMapper;
 import com.rental.service.HouseRentalService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -36,6 +38,9 @@ public class HouseRentalServiceImpl implements HouseRentalService {
 
     @Autowired
     private HouseRentalStatusMapper rentalStatusMapper;
+
+    @Autowired
+    private LandlordMapper landlordMapper;
 
     private void saveStatus(Long rentalId, Integer status, Long operatorId, Integer operatorType, String remark) {
         HouseRentalStatus rs = new HouseRentalStatus();
@@ -112,11 +117,19 @@ public class HouseRentalServiceImpl implements HouseRentalService {
     @Override
     @Transactional
     public void confirm(Long id, Long landlordId) {
+        Landlord landlord = landlordMapper.selectOne(
+                new LambdaQueryWrapper<Landlord>()
+                        .eq(Landlord::getUserId, landlordId));
+        
+        if (landlord == null) {
+            throw new RuntimeException("您还不是房东");
+        }
+        
         HouseRental rental = rentalMapper.selectById(id);
         if (rental == null) {
             throw new RuntimeException("租赁记录不存在");
         }
-        if (!rental.getLandlordId().equals(landlordId)) {
+        if (!rental.getLandlordId().equals(landlord.getId())) {
             throw new RuntimeException("无权操作");
         }
         if (rental.getStatus() != 0) {
@@ -132,11 +145,19 @@ public class HouseRentalServiceImpl implements HouseRentalService {
     @Override
     @Transactional
     public void reject(Long id, Long landlordId, String remark) {
+        Landlord landlord = landlordMapper.selectOne(
+                new LambdaQueryWrapper<Landlord>()
+                        .eq(Landlord::getUserId, landlordId));
+        
+        if (landlord == null) {
+            throw new RuntimeException("您还不是房东");
+        }
+        
         HouseRental rental = rentalMapper.selectById(id);
         if (rental == null) {
             throw new RuntimeException("租赁记录不存在");
         }
-        if (!rental.getLandlordId().equals(landlordId)) {
+        if (!rental.getLandlordId().equals(landlord.getId())) {
             throw new RuntimeException("无权操作");
         }
         if (rental.getStatus() != 0) {
@@ -165,8 +186,14 @@ public class HouseRentalServiceImpl implements HouseRentalService {
         if (operatorType == 1 && !rental.getUserId().equals(operatorId)) {
             throw new RuntimeException("无权操作");
         }
-        if (operatorType == 2 && !rental.getLandlordId().equals(operatorId)) {
-            throw new RuntimeException("无权操作");
+        if (operatorType == 2) {
+            Landlord landlord = landlordMapper.selectOne(
+                    new LambdaQueryWrapper<Landlord>()
+                            .eq(Landlord::getUserId, operatorId));
+            
+            if (landlord == null || !rental.getLandlordId().equals(landlord.getId())) {
+                throw new RuntimeException("无权操作");
+            }
         }
 
         if (rental.getStatus() != 2) {
@@ -239,51 +266,33 @@ public class HouseRentalServiceImpl implements HouseRentalService {
 
     @Override
     public PageResult<HouseRental> listByUser(Long userId, Integer status, String statusList, Integer page, Integer size) {
-        LambdaQueryWrapper<HouseRental> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(HouseRental::getUserId, userId);
+        List<Integer> statuses = null;
         if (statusList != null && !statusList.isEmpty()) {
-            List<Integer> statuses = Arrays.stream(statusList.split(","))
+            statuses = Arrays.stream(statusList.split(","))
                     .map(Integer::parseInt).collect(Collectors.toList());
-            wrapper.in(HouseRental::getStatus, statuses);
-        } else if (status != null) {
-            wrapper.eq(HouseRental::getStatus, status);
         }
-        wrapper.orderByDesc(HouseRental::getCreateTime);
-
-        Page<HouseRental> pageResult = rentalMapper.selectPage(new Page<>(page, size), wrapper);
-
-        for (HouseRental rental : pageResult.getRecords()) {
-            House house = houseMapper.selectById(rental.getHouseId());
-            if (house != null) {
-                rental.setHouseTitle(house.getTitle());
-            }
-        }
-
+        Page<HouseRental> pageResult = rentalMapper.selectRentalWithDetails(
+                new Page<>(page, size), userId, null, status, statuses);
         return new PageResult<>(pageResult.getRecords(), pageResult.getTotal());
     }
 
     @Override
     public PageResult<HouseRental> listByLandlord(Long landlordId, Integer status, String statusList, Integer page, Integer size) {
-        LambdaQueryWrapper<HouseRental> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(HouseRental::getLandlordId, landlordId);
+        Landlord landlord = landlordMapper.selectOne(
+                new LambdaQueryWrapper<Landlord>()
+                        .eq(Landlord::getUserId, landlordId));
+        
+        if (landlord == null) {
+            return new PageResult<>(java.util.List.of(), 0L);
+        }
+        
+        List<Integer> statuses = null;
         if (statusList != null && !statusList.isEmpty()) {
-            List<Integer> statuses = Arrays.stream(statusList.split(","))
+            statuses = Arrays.stream(statusList.split(","))
                     .map(Integer::parseInt).collect(Collectors.toList());
-            wrapper.in(HouseRental::getStatus, statuses);
-        } else if (status != null) {
-            wrapper.eq(HouseRental::getStatus, status);
         }
-        wrapper.orderByDesc(HouseRental::getCreateTime);
-
-        Page<HouseRental> pageResult = rentalMapper.selectPage(new Page<>(page, size), wrapper);
-
-        for (HouseRental rental : pageResult.getRecords()) {
-            House house = houseMapper.selectById(rental.getHouseId());
-            if (house != null) {
-                rental.setHouseTitle(house.getTitle());
-            }
-        }
-
+        Page<HouseRental> pageResult = rentalMapper.selectRentalWithDetails(
+                new Page<>(page, size), null, landlord.getId(), status, statuses);
         return new PageResult<>(pageResult.getRecords(), pageResult.getTotal());
     }
 
@@ -301,25 +310,13 @@ public class HouseRentalServiceImpl implements HouseRentalService {
 
     @Override
     public PageResult<HouseRental> listAll(Integer status, String statusList, Integer page, Integer size) {
-        LambdaQueryWrapper<HouseRental> wrapper = new LambdaQueryWrapper<>();
+        List<Integer> statuses = null;
         if (statusList != null && !statusList.isEmpty()) {
-            List<Integer> statuses = Arrays.stream(statusList.split(","))
+            statuses = Arrays.stream(statusList.split(","))
                     .map(Integer::parseInt).collect(Collectors.toList());
-            wrapper.in(HouseRental::getStatus, statuses);
-        } else if (status != null) {
-            wrapper.eq(HouseRental::getStatus, status);
         }
-        wrapper.orderByDesc(HouseRental::getCreateTime);
-
-        Page<HouseRental> pageResult = rentalMapper.selectPage(new Page<>(page, size), wrapper);
-
-        for (HouseRental rental : pageResult.getRecords()) {
-            House house = houseMapper.selectById(rental.getHouseId());
-            if (house != null) {
-                rental.setHouseTitle(house.getTitle());
-            }
-        }
-
+        Page<HouseRental> pageResult = rentalMapper.selectRentalWithDetails(
+                new Page<>(page, size), null, null, status, statuses);
         return new PageResult<>(pageResult.getRecords(), pageResult.getTotal());
     }
 }

@@ -72,4 +72,9 @@ public interface HouseService extends IService<House> {
      * 清空用户浏览历史
      */
     void clearBrowseHistory(Long userId);
+
+    /**
+     * 管理员分页查询所有房源
+     */
+    PageResult<House> listAll(Integer page, Integer size, Integer status);
 }
