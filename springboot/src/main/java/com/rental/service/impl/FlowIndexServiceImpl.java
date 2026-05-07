@@ -36,8 +36,7 @@ public class FlowIndexServiceImpl extends ServiceImpl<FlowIndexMapper, FlowIndex
         if (index == null) {
             index = new FlowIndex();
             index.setDate(today);
-            index.setPv(0);
-            index.setUv(0);
+
             index.setNewUsers(0);
             index.setHouseViews(0);
             index.setOrderCount(0);
@@ -47,22 +46,9 @@ public class FlowIndexServiceImpl extends ServiceImpl<FlowIndexMapper, FlowIndex
         return index;
     }
 
-    @Override
-    public void recordPv() {
-        FlowIndex index = getOrCreateToday();
-        index.setPv(index.getPv() + 1);
-        updateById(index);
-    }
 
-    @Override
-    public void recordUv(String ip) {
-        if (!todayUvSet.contains(ip)) {
-            todayUvSet.add(ip);
-            FlowIndex index = getOrCreateToday();
-            index.setUv(index.getUv() + 1);
-            updateById(index);
-        }
-    }
+
+
 
     @Override
     public void recordHouseView() {
@@ -97,8 +83,7 @@ public class FlowIndexServiceImpl extends ServiceImpl<FlowIndexMapper, FlowIndex
     public Map<String, Object> getTodayStats() {
         FlowIndex today = getOrCreateToday();
         Map<String, Object> stats = new HashMap<>();
-        stats.put("pv", today.getPv());
-        stats.put("uv", today.getUv());
+
         stats.put("newUsers", today.getNewUsers());
         stats.put("houseViews", today.getHouseViews());
         stats.put("orderCount", today.getOrderCount());

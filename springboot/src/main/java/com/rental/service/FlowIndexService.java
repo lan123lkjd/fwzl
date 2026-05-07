@@ -8,9 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 public interface FlowIndexService extends IService<FlowIndex> {
-    void recordPv();
 
-    void recordUv(String ip);
 
     void recordHouseView();
 

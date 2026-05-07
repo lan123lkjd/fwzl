@@ -19,9 +19,7 @@ public class FlowIndex implements Serializable {
 
     private LocalDate date;
 
-    private Integer pv;
 
-    private Integer uv;
 
     private Integer newUsers;
 

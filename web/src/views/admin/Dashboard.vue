@@ -3,14 +3,6 @@
     <h2>数据概览</h2>
     
     <div class="stat-cards">
-      <div class="stat-card">
-        <div class="label">今日PV</div>
-        <div class="value">{{ todayStats.pv || 0 }}</div>
-      </div>
-      <div class="stat-card success">
-        <div class="label">今日UV</div>
-        <div class="value">{{ todayStats.uv || 0 }}</div>
-      </div>
       <div class="stat-card warning">
         <div class="label">今日预约</div>
         <div class="value">{{ todayStats.orderCount || 0 }}</div>
@@ -36,25 +28,19 @@
     <el-row :gutter="16">
       <el-col :span="12">
         <div class="chart-container">
-          <div class="chart-title">近7日访问趋势</div>
-          <div ref="pvChartRef" class="chart"></div>
-        </div>
-      </el-col>
-      <el-col :span="12">
-        <div class="chart-container">
           <div class="chart-title">近7日预约趋势</div>
           <div ref="orderChartRef" class="chart"></div>
         </div>
       </el-col>
-    </el-row>
-    
-    <el-row :gutter="16">
       <el-col :span="12">
         <div class="chart-container">
           <div class="chart-title">房源浏览排行</div>
           <div ref="houseChartRef" class="chart"></div>
         </div>
       </el-col>
+    </el-row>
+    
+    <el-row :gutter="16">
       <el-col :span="12">
         <div class="chart-container">
           <div class="chart-title">用户增长趋势</div>
@@ -74,12 +60,11 @@ const todayStats = ref({})
 const totalStats = ref({})
 const trendData = ref([])
 
-const pvChartRef = ref()
 const orderChartRef = ref()
 const houseChartRef = ref()
 const userChartRef = ref()
 
-let pvChart, orderChart, houseChart, userChart
+let orderChart, houseChart, userChart
 
 const loadData = async () => {
   const [today, total, trend] = await Promise.all([
@@ -96,24 +81,9 @@ const loadData = async () => {
 
 const initCharts = () => {
   const dates = trendData.value.map(item => item.date)
-  const pvData = trendData.value.map(item => item.pv)
-  const uvData = trendData.value.map(item => item.uv)
   const orderData = trendData.value.map(item => item.orderCount)
   const userGrowth = trendData.value.map(item => item.newUsers)
   const houseViews = trendData.value.map(item => item.houseViews)
-  
-  // PV/UV趋势图
-  pvChart = echarts.init(pvChartRef.value)
-  pvChart.setOption({
-    tooltip: { trigger: 'axis' },
-    legend: { data: ['PV', 'UV'] },
-    xAxis: { type: 'category', data: dates },
-    yAxis: { type: 'value' },
-    series: [
-      { name: 'PV', type: 'line', data: pvData, smooth: true, itemStyle: { color: '#409eff' } },
-      { name: 'UV', type: 'line', data: uvData, smooth: true, itemStyle: { color: '#67c23a' } }
-    ]
-  })
   
   // 预约趋势图
   orderChart = echarts.init(orderChartRef.value)
@@ -151,7 +121,6 @@ const initCharts = () => {
 }
 
 const handleResize = () => {
-  pvChart?.resize()
   orderChart?.resize()
   houseChart?.resize()
   userChart?.resize()
@@ -164,7 +133,6 @@ onMounted(() => {
 
 onUnmounted(() => {
   window.removeEventListener('resize', handleResize)
-  pvChart?.dispose()
   orderChart?.dispose()
   houseChart?.dispose()
   userChart?.dispose()

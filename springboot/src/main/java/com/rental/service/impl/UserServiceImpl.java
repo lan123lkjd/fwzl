@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.rental.common.PageResult;
 import com.rental.entity.User;
 import com.rental.mapper.UserMapper;
+import com.rental.service.FlowIndexService;
 import com.rental.service.UserService;
 import com.rental.utils.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Autowired
     private JwtUtil jwtUtil;
+
+    @Autowired
+    private FlowIndexService flowIndexService;
 
     @Override
     public String login(String username, String password) {
@@ -48,7 +52,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         user.setPassword(DigestUtil.md5Hex(user.getPassword()));
         user.setRole(1); // 默认普通用户
         user.setStatus(1); // 默认正常状态
-        return save(user);
+        boolean result = save(user);
+        if (result) {
+            flowIndexService.recordNewUser();
+        }
+        return result;
     }
 
     @Override
