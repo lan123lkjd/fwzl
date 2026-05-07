@@ -223,12 +223,8 @@ public class HouseRentalServiceImpl implements HouseRentalService {
         if (!rental.getUserId().equals(userId)) {
             throw new RuntimeException("无权操作");
         }
-        if (rental.getStatus() == 2) {
-            throw new RuntimeException("租赁中的订单请联系房东退租，无法直接取消");
-        }
-        if (rental.getStatus() != 0 && rental.getStatus() != 1) {
-            throw new RuntimeException("当前状态不允许取消");
-        }
+        
+
 
         rental.setStatus(4);
         rental.setUpdateTime(LocalDateTime.now());

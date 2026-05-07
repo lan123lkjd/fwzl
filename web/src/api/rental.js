@@ -23,7 +23,10 @@ export const rentalApi = {
     complete: (id) => request.put(`/rental/complete/${id}`),
 
     // 取消租赁
-    cancel: (id) => request.put(`/rental/cancel/${id}`),
+    cancel: (id) => request.put(`/rental/cancel/${id}`).catch(error => {
+        // 将后端错误信息传递给调用方
+        throw error
+    }),
 
     // 支付租赁
     pay: (id) => request.put(`/rental/pay/${id}`)

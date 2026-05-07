@@ -35,11 +35,56 @@
         </template>
       </el-table-column>
       <el-table-column prop="createTime" label="申请时间" width="160" />
-      <el-table-column label="操作" width="160" fixed="right">
+      <el-table-column label="操作" width="220" fixed="right">
         <template #default="{ row }">
-          <el-button v-if="row.status === 0" size="small" type="danger" @click="handleCancel(row.id)">取消</el-button>
-          <el-button v-if="row.status === 1" size="small" type="warning" @click="openPayDialog(row)">去支付</el-button>
-          <el-button v-if="row.status === 2" size="small" type="success" @click="handleComplete(row.id)">完成租赁</el-button>
+          <!-- 待确认/待支付状态：显示取消按钮 -->
+          <el-button 
+            v-if="row.status === 0 || row.status === 1" 
+            size="small" 
+            type="danger" 
+            @click="handleCancel(row)"
+          >
+            取消申请
+          </el-button>
+          
+          <!-- 租赁中状态：显示禁用按钮+提示 -->
+          <el-tooltip 
+            v-if="row.status === 2" 
+            content="租赁中的订单需联系房东办理退租" 
+            placement="top"
+          >
+            <el-button size="small" type="danger" disabled>取消</el-button>
+          </el-tooltip>
+          
+          <!-- 待支付状态：显示支付按钮 -->
+          <el-button 
+            v-if="row.status === 1" 
+            size="small" 
+            type="warning" 
+            @click="openPayDialog(row)"
+          >
+            去支付
+          </el-button>
+          
+          <!-- 租赁中状态：显示完成按钮 -->
+          <el-button 
+            v-if="row.status === 2" 
+            size="small" 
+            type="success" 
+            @click="handleComplete(row.id)"
+          >
+            完成租赁
+          </el-button>
+          
+          <!-- 已完成状态 -->
+          <el-tag v-if="row.status === 3" size="small" type="success">
+            ✓ 已完成
+          </el-tag>
+          
+          <!-- 已取消/已拒绝状态 -->
+          <el-tag v-if="row.status === 4 || row.status === 5" size="small" type="info">
+            已结束
+          </el-tag>
         </template>
       </el-table-column>
     </el-table>
@@ -144,14 +189,57 @@ const loadData = async () => {
 const getStatusText = (s) => ({ 0: '待确认', 1: '待支付', 2: '租赁中', 3: '已完成', 4: '已取消', 5: '已拒绝' }[s] || '-')
 const getStatusType = (s) => ({ 0: 'warning', 1: 'danger', 2: 'primary', 3: 'success', 4: 'info', 5: 'danger' }[s] || '')
 
-const handleCancel = async (id) => {
-  await ElMessageBox.confirm('确定要取消此租赁申请吗？', '提示', { type: 'warning' })
-  const res = await rentalApi.cancel(id)
-  if (res.code === 200) {
-    ElMessage.success('已取消')
-    loadData()
+const handleCancel = async (row) => {
+  const statusText = getStatusText(row.status)
+  let message = ''
+  let title = '确认取消'
+  
+  // 根据不同状态给出不同的确认提示
+  if (row.status === 0) {
+    message = `当前状态：${statusText}\n\n取消后房东将收到通知，房源将重新开放预订。\n确定要取消吗？`
+    title = '取消待确认申请'
+  } else if (row.status === 1) {
+    message = `当前状态：${statusText}\n\n您还未支付租金，取消后将释放房源。\n确定要取消吗？`
+    title = '取消待支付订单'
+  }
+  
+  try {
+    await ElMessageBox.confirm(message, title, { 
+      type: 'warning',
+      confirmButtonText: '确定取消',
+      cancelButtonText: '我再想想',
+      distinguishCancelAndClose: true
+    })
+    
+    const res = await rentalApi.cancel(row.id)
+    if (res.code === 200) {
+      ElMessage.success('已取消')
+      loadData()
+    } else {
+      // 后端返回错误时，根据错误信息显示不同的提示
+      handleCancelError(res.message)
+    }
+  } catch (error) {
+    if (error !== 'cancel') {
+      // 用户点击了取消按钮或关闭对话框，不做处理
+      console.log('用户取消了操作')
+    }
+  }
+}
+
+// 处理取消操作的错误信息
+const handleCancelError = (message) => {
+  if (message && message.includes('租赁中')) {
+    ElMessage.warning({
+      message: '租赁中的订单需要联系房东办理退租手续',
+      duration: 3000
+    })
+  } else if (message && message.includes('已完成')) {
+    ElMessage.info('该租赁已完成，无法取消')
+  } else if (message && message.includes('已取消')) {
+    ElMessage.info('该订单已经取消过了')
   } else {
-    ElMessage.error(res.message || '操作失败')
+    ElMessage.error(message || '操作失败')
   }
 }
 

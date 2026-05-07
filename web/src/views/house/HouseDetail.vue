@@ -66,7 +66,7 @@
             </div>
             <div style="display: flex; justify-content: space-between">
               <span style="color: #666">电话</span>
-              <span>{{ landlordInfo.phone || '-' }}</span>
+              <span>{{ landlordInfo.contact || '-' }}</span>
             </div>
             <div style="display: flex; justify-content: space-between; align-items: center">
               <span style="color: #666">服务评分</span>

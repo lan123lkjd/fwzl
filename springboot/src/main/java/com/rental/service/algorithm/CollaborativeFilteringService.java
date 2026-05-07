@@ -129,7 +129,7 @@ public class CollaborativeFilteringService {
                     .add(browse.getHouseId());
         }
 
-        // 收藏记录（权重更高，这里简化处理，同等对待）
+        // 收藏记录
         List<UserCollect> allCollect = collectMapper.selectList(null);
         for (UserCollect collect : allCollect) {
             behaviors.computeIfAbsent(collect.getUserId(), k -> new HashSet<>())
