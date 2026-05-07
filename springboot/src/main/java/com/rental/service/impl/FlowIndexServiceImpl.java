@@ -13,10 +13,8 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 @Service
 public class FlowIndexServiceImpl extends ServiceImpl<FlowIndexMapper, FlowIndex> implements FlowIndexService {
@@ -27,8 +25,6 @@ public class FlowIndexServiceImpl extends ServiceImpl<FlowIndexMapper, FlowIndex
     private HouseMapper houseMapper;
     @Autowired
     private HouseOrderInfoMapper orderMapper;
-
-    private final Set<String> todayUvSet = new HashSet<>();
 
     private FlowIndex getOrCreateToday() {
         LocalDate today = LocalDate.now();
@@ -41,7 +37,6 @@ public class FlowIndexServiceImpl extends ServiceImpl<FlowIndexMapper, FlowIndex
             index.setHouseViews(0);
             index.setOrderCount(0);
             save(index);
-            todayUvSet.clear();
         }
         return index;
     }

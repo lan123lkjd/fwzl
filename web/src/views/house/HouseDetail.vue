@@ -91,7 +91,7 @@
               <span style="color: #999; font-size: 12px">{{ formatTime(item.evaluationTime) }}</span>
             </div>
             <div style="color: #666; font-size: 14px; line-height: 1.6">{{ item.evaluationContent || '用户未填写评价内容' }}</div>
-            <div style="color: #999; font-size: 12px; margin-top: 4px">房源：{{ item.houseTitle }}</div>
+           
           </div>
         </div>
         
